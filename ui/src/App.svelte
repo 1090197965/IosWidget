@@ -39,7 +39,7 @@
     };
 </script>
 
-<main class="bg-gray9 dark:bg-gray5 text-black dark:text-white/90 relative min-h-screen text-justify w-screen antialiased">
+<main class="bg-gray9 dark:bg-gray5 text-black dark:text-white/90 relative pb-5 text-justify w-screen antialiased">
     <div class="sticky z-10 top-0">
         <NavBar
             left={showLeft ? 'back' : ''}
@@ -52,10 +52,14 @@
             injClass="bg-white/60 dark:bg-gray1/60 backdrop-blur"
         >
             <div slot="right" class="flex text-center">
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <div class="h-12 w-10 leading-10" on:click={toggleFun}>
-                    <Icon name={theme === 'dark' ? 'ri-moon-fill' : 'ri-sun-line'} theme={true} />
-                </div>
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div class="h-12 w-10 leading-10 text-blue" on:click={() => push('/demo')}>
+                示例
+              </div>
+              <!-- svelte-ignore a11y-click-events-have-key-events -->
+              <div class="h-12 w-10 leading-10" on:click={toggleFun}>
+                  <Icon name={theme === 'dark' ? 'ri-moon-fill' : 'ri-sun-line'} theme={true} />
+              </div>
             </div>
         </NavBar>
     </div>
