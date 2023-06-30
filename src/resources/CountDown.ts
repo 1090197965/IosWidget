@@ -28,7 +28,7 @@ async function run() {
     Script.complete();
   } else if (config.runsInApp) {
     const notice = new Alert();
-    notice.addAction('ChatGPT');
+    notice.addAction('发送消息');
     notice.addAction('预览组件');
     notice.addCancelAction('取消操作');
     const rs = await notice.presentSheet();
@@ -38,7 +38,7 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        web.loadURL('http://10.81.3.113:8888/#/');
+        web.loadURL(`http://10.81.3.113:8888/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
         web.present();
         break;
       case 1:
@@ -89,11 +89,11 @@ async function getLocationImg(data: IRecordData) {
   let x: number;
   let mapX: number;
   let y: number;
+  x = Math.floor(data.current100.longitude * 10000) / 10000;
+  mapX = Math.floor(data.current100.longitude * 10000 - 10) / 10000;
+  y = Math.floor(data.current100.latitude * 10000) / 10000;
   if (!data.backgroundImg) {
     log('本地生成背景图URL');
-    x = Math.floor(data.current100.longitude * 10000) / 10000;
-    mapX = Math.floor(data.current100.longitude * 10000 - 10) / 10000;
-    y = Math.floor(data.current100.latitude * 10000) / 10000;
   } else {
     log('从服务器获取图片');
   }

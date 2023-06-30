@@ -14,6 +14,7 @@ const dayjs = require('dayjs');
 
 const FREQUENCY_KEY = 'FREQUENCY_KEY';
 const RECORD_KEY = 'RECORD_KEY';
+const SEND_MESSAGE_DATA = 'SEND_MESSAGE_DATA';
 
 @Controller('scriptable')
 export class ScriptableController {
@@ -49,16 +50,12 @@ export class ScriptableController {
 
   @Post('sendMessage')
   async sendMessage(@Body() body: ISendMessage, @Res() res: Response) {
-    const info = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.driveName);
-    info.emojiCount = body.emojiCount;
-    info.emojiImg = body.emojiImg;
-    info.message = body.message;
-    await this.cacheManager.set(RECORD_KEY + body.driveName, info);
+    await this.cacheManager.set(SEND_MESSAGE_DATA + body.driveName, body);
 
     res.json({
       code: 0,
       data: {
-        info,
+        body,
       },
       message: '',
     });
@@ -89,7 +86,7 @@ export class ScriptableController {
     await this.cacheManager.set(recordKey, body);
 
     if (body.target) {
-      rsData = await this.cacheManager.get(RECORD_KEY + body.target);
+      rsData = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.target);
     }
 
     if (!body.target || !rsData) {
@@ -97,6 +94,11 @@ export class ScriptableController {
     }
 
     console.log('获取到的数据', rsData);
+    console.log('获取消息数据')
+    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + body.driveName);
+    rsData.message = message.message;
+    rsData.emojiImg = message.emojiImg;
+    rsData.emojiCount = message.emojiCount;
 
     res.json({
       code: 0,
