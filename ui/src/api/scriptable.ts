@@ -1,5 +1,6 @@
+// @ts-ignore
 import axios, { AxiosResponse } from "axios";
-import { IHomeInfos, IResponse, IWidgetRecordData } from "../interface/scriptable.interface";
+import { IAppRecordData, IAppSendMessage, IHomeInfos, IResponse } from "../interface/scriptable.interface";
 
 const instance = axios.create({
     withCredentials: true,
@@ -11,7 +12,10 @@ const instance = axios.create({
     }
 })
 export default {
-    getHomeInfos(): Promise<AxiosResponse<IResponse<IHomeInfos>>> {
-        return instance.get('/scriptable/infos')
+    getHomeInfos(data): Promise<AxiosResponse<IResponse<IHomeInfos>>> {
+        return instance.post('/scriptable/infos', data)
+    },
+    sendMessage(data:IAppSendMessage): Promise<AxiosResponse<IResponse<IAppRecordData>>> {
+        return instance.post('/scriptable/sendMessage', data)
     }
 };

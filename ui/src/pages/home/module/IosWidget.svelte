@@ -1,17 +1,62 @@
 <script lang="ts">
   import { IHomeInfos, IWidgetRecordData } from "../../../interface/scriptable.interface";
+  import gsap from "gsap";
+  import { tick } from "svelte";
+  import { getUrlParams } from "./utils";
+  import scriptable from "../../../api/scriptable";
 
   export let infos:IHomeInfos;
+  let path: string;
   let target: IWidgetRecordData;
   let drive: IWidgetRecordData;
   let emojiDom;
+  let getParams = getUrlParams()
+  console.log('getParams', getParams);
 
-  $: target = infos?.qp;
-  $: drive = infos?.amiang;
+  $: target = infos?.target;
+  $: drive = infos?.driveName;
+
+  scriptable.getHomeInfos({
+    driveName: getParams.driveName,
+    target: getParams.target
+  }).then((response) => {
+    console.log('response', response);
+    if (response.data.code === 0) {
+      infos = response.data.data
+    }
+  });
 
   export const getEmojiDom = () => {
     console.log('emoji-content', emojiDom);
     return emojiDom;
+  }
+
+  export const setPath = async (sendPath, count, message) => {
+    path = sendPath
+    if (sendPath) {
+      await tick();
+      scriptable.sendMessage({
+        driveName: getParams.driveName,
+        target: getParams.target,
+        emojiCount: count,
+        emojiImg: sendPath,
+        message: message
+      }).then((response) => {
+        console.log('response', response);
+        if (response.data.code === 0) {
+
+        }
+      });
+
+      gsap.from('.emoji-content', {
+        x: '-=100',
+        duration: 0.5,
+        ease: "back.out(1.7)",
+        onComplete: () => {
+
+        }
+      })
+    }
   }
 
   const getTime = (time: string) => {
@@ -44,7 +89,7 @@
   {#if target && drive}
     <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`background-image: url("${target.backgroundImg}")`}'>
       <div class="emoji-mark">
-        <img bind:this={emojiDom} class="text-center pointer-events-none emoji-content w-20 m-5" src={`/public/assets/emoji/xhj (1).png`} alt="">
+        <img bind:this={emojiDom} class="text-center pointer-events-none emoji-content w-20 h-20 m-5 unread" src={path} alt="">
       </div>
       <div class="absolute bottom-0 left-0 bg-[#696969] opacity-60 rounded-xl w-28 h-10 m-2 pt-0.5 pl-2" style="">
         <div class="text-white text-xs">↙{getTime(target.time)} ↗{getTime(drive.time)}</div>
@@ -66,3 +111,9 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .unread {
+	  filter: contrast(50%);
+  }
+</style>

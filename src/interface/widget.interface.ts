@@ -24,6 +24,9 @@ export interface IRecordData {
   uuid: string;
   backgroundImg: string;
   backgroundImgHash: string;
+  emojiImg?: string;
+  emojiCount?: number;
+  message: string;
 }
 
 interface CurrentLocation {
@@ -32,4 +35,12 @@ interface CurrentLocation {
   altitude: number;
   latitude: number;
   longitude: number;
+}
+
+export interface ISendMessage {
+  driveName: string;
+  target: string;
+  emojiImg?: string;
+  emojiCount?: number;
+  message?: string;
 }

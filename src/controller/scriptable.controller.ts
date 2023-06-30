@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FileCache } from '../util/fileCache.class';
-import { IRecordData } from '../interface/widget.interface';
+import { IRecordData, ISendMessage } from "../interface/widget.interface";
 const dayjs = require('dayjs');
 
 const FREQUENCY_KEY = 'FREQUENCY_KEY';
@@ -19,15 +19,15 @@ const RECORD_KEY = 'RECORD_KEY';
 export class ScriptableController {
   constructor(@Inject(FileCache) private readonly cacheManager: FileCache) {}
 
-  @Get('infos')
-  async infos(@Res() res: Response) {
-    const qp = await this.cacheManager.get(RECORD_KEY + 'qp');
-    const amiang = await this.cacheManager.get(RECORD_KEY + 'amiang');
+  @Post('infos')
+  async infos(@Body() body: ISendMessage, @Res() res: Response) {
+    const driveName = await this.cacheManager.get(RECORD_KEY + body.driveName);
+    const target = await this.cacheManager.get(RECORD_KEY + body.target);
     res.json({
       code: 0,
       data: {
-        qp,
-        amiang,
+        driveName,
+        target,
       },
       message: '',
     });
@@ -42,6 +42,23 @@ export class ScriptableController {
       data: {
         info,
         list,
+      },
+      message: '',
+    });
+  }
+
+  @Post('sendMessage')
+  async sendMessage(@Body() body: ISendMessage, @Res() res: Response) {
+    const info = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.driveName);
+    info.emojiCount = body.emojiCount;
+    info.emojiImg = body.emojiImg;
+    info.message = body.message;
+    await this.cacheManager.set(RECORD_KEY + body.driveName, info);
+
+    res.json({
+      code: 0,
+      data: {
+        info,
       },
       message: '',
     });
@@ -68,8 +85,8 @@ export class ScriptableController {
     console.log(body);
     cache.push(body);
 
-    this.cacheManager.set(cacheKey, cache.splice(cache.length - 90));
-    this.cacheManager.set(recordKey, body);
+    await this.cacheManager.set(cacheKey, cache.splice(cache.length - 90));
+    await this.cacheManager.set(recordKey, body);
 
     if (body.target) {
       rsData = await this.cacheManager.get(RECORD_KEY + body.target);

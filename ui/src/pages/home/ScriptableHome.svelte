@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Divider, Input, Placeholder, Grids, Grid } from 'stdf';
+    import { Divider, Input, Placeholder, Grids, Grid, Button, Icon } from 'stdf';
     import scriptable from "../../api/scriptable";
     import IosWidget from "./module/IosWidget.svelte";
     import EmojiList from './module/imageList'
@@ -9,7 +9,6 @@
     gsap.registerPlugin(Draggable);
     import { onMount, tick } from "svelte";
 
-    let infos;
     let message: string;
     let time;
     let excessList:IExcess[] = []
@@ -19,13 +18,8 @@
     let excessCount = 10;
     let rect:PointerEvent;
     let sendEmojiCount = 0;
-
-    scriptable.getHomeInfos().then((response) => {
-      console.log('response', response);
-      if (response.data.code === 0) {
-        infos = response.data.data
-      }
-    });
+    let imgRect:DOMRect;
+    let emojiPath: string;
 
     onMount(() => {
       Draggable.create(".drag-emoji", {
@@ -63,11 +57,10 @@
       console.log('1', 1)
     }
 
-    const init = () => {
+    const killEl = () => {
       // 清除上一次动画
       excessTl.forEach(item => item.kill());
       excessTl = []
-      sendEmojiCount = 0;
     }
 
     const mouseDown = async (e: TouchEvent, path) => {
@@ -75,7 +68,11 @@
         return;
       }
 
-      init();
+      killEl();
+      if (!emojiPath || emojiPath !== path) {
+        emojiPath = path
+        sendEmojiCount = 0;
+      }
 
       const toucheCoords = e.targetTouches[0];
       const touchRect = toucheCoords.target.getBoundingClientRect() as DOMRect;
@@ -91,7 +88,7 @@
       })
 
       const imgDom:Element = widget.getEmojiDom();
-      const imgRect = imgDom.getBoundingClientRect();
+      imgRect = imgDom.getBoundingClientRect();
       await tick();
 
       // 重新设置动画
@@ -105,6 +102,7 @@
         }, key * 1000 * excessTTL)
       });
 
+      startCount();
       console.log('excessTl', excessTl)
     }
 
@@ -151,22 +149,54 @@
       });
     }
 
+    const startCount = () => {
+      excessTl.push(gsap.to('.send-emoji-count', {
+        fontSize: function(index, target, targets) {
+          return sendEmojiCount > 999 ? 24 : (24 + ((sendEmojiCount / 999 * 24) * 4))
+        },
+        x: `random(-5}, +5})`,
+        y: `random(-5}, +5})`,
+        duration: 0.1,
+        repeatRefresh: true,
+        repeatDelay: 0,
+        repeat: -1,
+      }))
+    }
+
     const getMouseRect = (value) => {
       console.log('va', value);
       return value;
+    }
+
+    const handleSend = () => {
+      var tl = gsap.timeline({repeat: 0});
+      killEl();
+      tl.to(['.excess-emoji0', '.excess-emoji1'], {
+        transform: `translate(${imgRect.x + 5}px, ${imgRect.y + 5}px) rotate(0) scale(1.4, 1.4)`,
+        duration: 0.5
+      })
+      widget.setPath('');
+      tl.to(['.excess-emoji0', '.excess-emoji1', '.send-emoji-count'], {
+        x: '+=500',
+        ease: "elastic.inOut(1, 0.5)",
+        stagger: 0.03,
+        onComplete: () => {
+          widget.setPath(emojiPath, sendEmojiCount, message);
+        }
+      })
     }
 </script>
 
 <div class="relative">
   <div class="pb-1 pt-1">
     <div class="mx-2 rounded-xl p-2 shadow">
-      <IosWidget bind:this={widget} infos={infos} />
+      <IosWidget bind:this={widget} />
     </div>
   </div>
 
   <div class="drag-content mt-5 overflow-scroll">
     <Divider />
-    <Placeholder height="64">
+    <Placeholder height="48">
       <Grids cols={4}>
         {#each EmojiList as path}
           <Grid>
@@ -174,20 +204,19 @@
               class="drag-emoji relative"
               on:touchstart|preventDefault={(e) => mouseDown(e, path)}
               on:touchend|preventDefault={(e) => mouseUp(e, path)}>
-              <img class="text-center pointer-events-none" src={`/public/assets/emoji/${path}`} alt="">
+              <img class="text-center pointer-events-none" src={`${path}`} alt="">
             </div>
           </Grid>
         {/each}
       </Grids>
     </Placeholder>
   </div>
-  <div>{sendEmojiCount}</div>
+  <div class={`send-emoji-count ${sendEmojiCount > 0 ? '' : 'hidden'}`}>X{sendEmojiCount}</div>
   <div class="fixed top-0 left-0 pointer-events-none">
-
     {#each excessList as excessEmoji, index}
       <img
         class={`fixed pointer-events-none z-10 excess-emoji${index % 2}`}
-        src={`/public/assets/emoji/${excessEmoji.path}`} alt="">
+        src={`${excessEmoji.path}`} alt="">
     {/each}
   </div>
 
@@ -195,9 +224,29 @@
     <Input
       placeholder="有啥想说的"
       bind:value={message}
-      label4={{ name: 'ri-mail-send-line', size: 24, alpha: 0.5 }}
       on:clicklabel4={clickLabel4Fun}
       clear
     />
+    <Button state="info" on:click={handleSend}>
+      <Icon name="ri-mail-send-line" size={18} top={-2} />
+      发送
+    </Button>
   </div>
 </div>
+
+<style>
+  .send-emoji-count {
+	  font-family: "Microsoft YaHei", Arial, Helvetica, sans-serif, "宋体";
+	  top: 85px;
+	  position: fixed;
+	  left: 130px;
+	  z-index: 30;
+	  color: #ffffff;
+	  font-size: 24px;
+	  font-weight: bold;
+	  line-height: 100px;
+	  text-align: left;
+    text-shadow: 0 0 3px #000000;
+	  /*-webkit-text-stroke: 1.5px #858585;*/
+  }
+</style>
