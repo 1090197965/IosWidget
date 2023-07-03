@@ -4,10 +4,10 @@ import {
   Get,
   Inject,
   Post,
-  Query,
-  Res,
-} from '@nestjs/common';
-import { Response } from 'express';
+  Query, Req,
+  Res
+} from "@nestjs/common";
+import { Response, Request } from 'express';
 import { FileCache } from '../util/fileCache.class';
 import { IRecordData, ISendMessage } from "../interface/widget.interface";
 const dayjs = require('dayjs');
@@ -35,9 +35,11 @@ export class ScriptableController {
   }
 
   @Get('info')
-  async info(@Res() res: Response, @Query('name') name: string) {
+  async info(@Res() res: Response, @Query('name') name: string, @Req() req: Request) {
     const list = await this.cacheManager.get(FREQUENCY_KEY + name);
-    const info = await this.cacheManager.get(RECORD_KEY + name);
+    let info = await this.cacheManager.get<IRecordData>(RECORD_KEY + name);
+    info = await this.mergeSendMessage(info, req)
+
     res.json({
       code: 0,
       data: {
@@ -46,6 +48,14 @@ export class ScriptableController {
       },
       message: '',
     });
+  }
+
+  async mergeSendMessage(data: IRecordData, req) {
+    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + data.driveName);
+    data.message = message.message;
+    data.emojiImg = message.emojiImg;
+    data.emojiCount = message.emojiCount;
+    return data;
   }
 
   @Post('sendMessage')
@@ -62,7 +72,7 @@ export class ScriptableController {
   }
 
   @Post('update')
-  async update(@Body() body: IRecordData, @Res() res: Response) {
+  async update(@Body() body: IRecordData, @Res() res: Response, @Req() req: Request) {
     let rsData: IRecordData;
     const cacheKey = FREQUENCY_KEY + body.driveName;
     const recordKey = RECORD_KEY + body.driveName;
@@ -94,11 +104,7 @@ export class ScriptableController {
     }
 
     console.log('获取到的数据', rsData);
-    console.log('获取消息数据')
-    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + body.driveName);
-    rsData.message = message.message;
-    rsData.emojiImg = message.emojiImg;
-    rsData.emojiCount = message.emojiCount;
+    rsData = await this.mergeSendMessage(rsData, req);
 
     res.json({
       code: 0,

@@ -7,7 +7,6 @@
  */
 // Install Scripts.js
 const $ = importModule('Env');
-const urlDev = 'http://10.81.3.113:9000';
 const urlProd = 'https://nas.qppp.top:22431';
 let initConfig = false;
 

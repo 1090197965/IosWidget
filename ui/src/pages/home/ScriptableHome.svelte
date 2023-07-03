@@ -198,13 +198,13 @@
     <Divider />
     <Placeholder height="48">
       <Grids cols={4}>
-        {#each EmojiList as path}
+        {#each EmojiList as emojiItem}
           <Grid>
             <div
               class="drag-emoji relative"
-              on:touchstart|preventDefault={(e) => mouseDown(e, path)}
-              on:touchend|preventDefault={(e) => mouseUp(e, path)}>
-              <img class="text-center pointer-events-none" src={`${path}`} alt="">
+              on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
+              on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}>
+              <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="">
             </div>
           </Grid>
         {/each}

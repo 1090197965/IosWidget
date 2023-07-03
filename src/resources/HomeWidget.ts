@@ -10,14 +10,13 @@ const $: IEnv = importModule('Env');
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const widgetConfig = importModule('WidgetConfig');
-const homeUrl = 'http://10.81.3.113:99';
 
 // 组件初始化
 await run();
 
 async function run() {
   if (config.runsInWidget) {
-    const data = await record(widgetConfig.url, widgetConfig.target);
+    const data = await record();
     const widget = await createWidget(data);
     Script.setWidget(widget);
     Script.complete();
@@ -33,11 +32,11 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        web.loadURL(homeUrl + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
+        web.loadURL(widgetConfig.controlDev + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
         web.present();
         break;
       case 1:
-        const data = await record(widgetConfig.url, widgetConfig.target);
+        const data = await record();
         const widget = await createWidget(data);
         await widget.presentMedium();
         break;
@@ -103,17 +102,10 @@ async function getLocationImg(data: IRecordData) {
   );
 }
 
-async function record(url, target) {
-  const data = await collect(target);
-  const res = await $.post({
-    url: url + '/scriptable/update',
-    body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  log('后端响应');
+async function record() {
+  const res = $.getdata('Home-Widget-Data')
   const response = JSON.parse(res);
+  log('获取缓存数据');
   log(response);
   // checkVersion(response.version);
   return response.data as IRecordData;
@@ -257,6 +249,7 @@ async function getImageByUrl(url, cacheKey: string = '', useCache = true) {
   log(cacheFile);
   // 判断是否有缓存
   if (useCache && FileManager.local().fileExists(cacheFile)) {
+    log('获取图片缓存数据');
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return Image.fromFile(cacheFile);

@@ -20,10 +20,18 @@ const scripts = [
     moduleName: 'WidgetConfig',
     url: urlDev + '/script/WidgetConfig.js',
   },
-  // {
-  //   moduleName: 'Env',
-  //   url: url + '/script/Env.js',
-  // },
+  {
+    moduleName: 'Collect',
+    url: urlDev + '/script/Collect.js',
+  },
+  {
+    moduleName: 'WarmUp',
+    url: urlDev + '/script/WarmUp.js',
+  },
+  {
+    moduleName: 'HomeWidget.ts',
+    url: url + '/script/HomeWidget.ts.js',
+  },
   {
     moduleName: 'Install Scripts',
     url: urlDev + '/script/Install%20Scripts.js',
