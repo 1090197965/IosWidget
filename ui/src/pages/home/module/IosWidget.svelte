@@ -2,6 +2,7 @@
   import { IHomeInfos, IWidgetRecordData } from "../../../interface/scriptable.interface";
   import gsap from "gsap";
   import { tick } from "svelte";
+  import { Loading, Skeleton } from 'stdf';
   import { getUrlParams } from "./utils";
   import scriptable from "../../../api/scriptable";
 
@@ -11,18 +12,22 @@
   let drive: IWidgetRecordData;
   let emojiDom;
   let getParams = getUrlParams()
+  let loading = false;
   console.log('getParams', getParams);
 
   $: target = infos?.target;
   $: drive = infos?.driveName;
 
+  loading = true;
   scriptable.getHomeInfos({
     driveName: getParams.driveName,
     target: getParams.target
   }).then((response) => {
+    loading = false;
     console.log('response', response);
     if (response.data.code === 0) {
       infos = response.data.data
+      path = response.data.data.target.emojiImg
     }
   });
 
@@ -32,7 +37,6 @@
   }
 
   export const setPath = async (sendPath, count, message) => {
-    path = sendPath
     if (sendPath) {
       await tick();
       scriptable.sendMessage({
@@ -44,18 +48,15 @@
       }).then((response) => {
         console.log('response', response);
         if (response.data.code === 0) {
-
+          path = sendPath
+          gsap.from('.emoji-content', {
+            x: '-=100',
+            duration: 0.5,
+            ease: "back.out(1.7)",
+            onComplete: () => {}
+          })
         }
       });
-
-      gsap.from('.emoji-content', {
-        x: '-=100',
-        duration: 0.5,
-        ease: "back.out(1.7)",
-        onComplete: () => {
-
-        }
-      })
     }
   }
 
@@ -87,9 +88,9 @@
 
 <div class="flex flex-col py-1">
   {#if target && drive}
-    <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`background-image: url("${target.backgroundImg}")`}'>
-      <div class="emoji-mark">
-        <img bind:this={emojiDom} class="text-center pointer-events-none emoji-content w-20 h-20 m-5 unread" src={path} alt="">
+    <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`background-image: url("${target.backgroundImg}"); min-height:160px`}'>
+      <div class="emoji-mark table-cell">
+        <img bind:this={emojiDom} class="text-center pointer-events-none emoji-content m-5 unread" src={path} alt="" style="width: 80px">
       </div>
       <div class="absolute bottom-0 left-0 bg-[#696969] opacity-60 rounded-xl w-28 h-10 m-2 pt-0.5 pl-2" style="">
         <div class="text-white text-xs">↙{getTime(target.time)} ↗{getTime(drive.time)}</div>
@@ -107,6 +108,12 @@
             `}></div>
           </div>
         </div>
+      </div>
+    </div>
+  {:else}
+    <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`min-height:160px`}'>
+      <div class="emoji-mark">
+        <Skeleton type="img" width="full" height="32" iconRatio={0.3} padding="4" />
       </div>
     </div>
   {/if}

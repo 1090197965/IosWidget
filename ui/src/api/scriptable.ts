@@ -5,7 +5,7 @@ import { IAppRecordData, IAppSendMessage, IHomeInfos, IResponse } from "../inter
 const instance = axios.create({
     withCredentials: true,
     timeout: 1000 * 60,
-    baseURL: 'http://10.81.3.113:9000',
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'

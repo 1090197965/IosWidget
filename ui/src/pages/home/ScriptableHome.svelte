@@ -132,8 +132,8 @@
         rotation: `random(-50, 50)`,
         x: `random(${endRect.x - 10}, ${endRect.x + 10})`,
         y: `random(${endRect.y - 10}, ${endRect.y + 10})`,
-        scaleX: 1.4,
-        scaleY: 1.4,
+        scaleX: 1.2,
+        scaleY: 1.2,
         ease: "expo.out",
         stagger: excessTTL / excessCount,
         duration: excessTTL,
@@ -172,7 +172,7 @@
       var tl = gsap.timeline({repeat: 0});
       killEl();
       tl.to(['.excess-emoji0', '.excess-emoji1'], {
-        transform: `translate(${imgRect.x + 5}px, ${imgRect.y + 5}px) rotate(0) scale(1.4, 1.4)`,
+        transform: `translate(${imgRect.x + 5}px, ${imgRect.y + 5}px) rotate(0) scale(1.2, 1.2)`,
         duration: 0.5
       })
       widget.setPath('');
@@ -180,8 +180,11 @@
         x: '+=500',
         ease: "elastic.inOut(1, 0.5)",
         stagger: 0.03,
-        onComplete: () => {
-          widget.setPath(emojiPath, sendEmojiCount, message);
+        onComplete: async () => {
+          await widget.setPath(emojiPath, sendEmojiCount, message);
+          message = '';
+          sendEmojiCount = 0;
+          emojiPath = '';
         }
       })
     }
@@ -196,27 +199,28 @@
 
   <div class="drag-content mt-5 overflow-scroll">
     <Divider />
-    <Placeholder height="48">
-      <Grids cols={4}>
-        {#each EmojiList as emojiItem}
-          <Grid>
+    <div class="bg-gray7">
+      {#each EmojiList as emojiItem}
+        <div class="inline-block w-1/4 p-2" style="vertical-align: top">
+          <div class="bg-gray8 text-center emoji-wrap">
             <div
               class="drag-emoji relative"
               on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
-              on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}>
-              <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="">
+              on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}
+            >
+              <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 80px">
             </div>
-          </Grid>
-        {/each}
-      </Grids>
-    </Placeholder>
+          </div>
+        </div>
+      {/each}
+    </div>
   </div>
   <div class={`send-emoji-count ${sendEmojiCount > 0 ? '' : 'hidden'}`}>X{sendEmojiCount}</div>
   <div class="fixed top-0 left-0 pointer-events-none">
     {#each excessList as excessEmoji, index}
       <img
         class={`fixed pointer-events-none z-10 excess-emoji${index % 2}`}
-        src={`${excessEmoji.path}`} alt="">
+        src={`${excessEmoji.path}`} alt="" style="width: 80px">
     {/each}
   </div>
 
@@ -248,5 +252,15 @@
 	  text-align: left;
     text-shadow: 0 0 3px #000000;
 	  /*-webkit-text-stroke: 1.5px #858585;*/
+  }
+
+  .emoji-wrap {
+	  border-radius: 10px;
+    width: 100%;
+    height: 80px;
+    vertical-align: middle;
+	  display: flex;
+	  align-content: center;
+	  flex-wrap: wrap;
   }
 </style>

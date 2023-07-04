@@ -12,6 +12,7 @@ if (config.runsInAccessoryWidget) {
 const time = new Date().getHours() + ':' + new Date().getMinutes();
 $.setdata('ABL-demo', time);
 log('设置成功: ' + time);
+// @ts-ignore
 const rs = await record();
 $.setdata('ABL-address', JSON.stringify(rs));
 

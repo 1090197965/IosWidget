@@ -6,7 +6,7 @@ const getConfig = async() => {
     suffix: '',
   }
   let rs = 1;
-  if (config.runsInApp) {
+  if (config.runsInApp && args.widgetParameter !== 'widget') {
     const notice = new Alert();
     notice.addAction('DEV环境');
     notice.addAction('正式环境');
@@ -27,7 +27,7 @@ const getConfig = async() => {
     default:
       rsConfig.target = 'amiang';
       rsConfig.url = 'https://nas.qppp.top:22431';
-      rsConfig.control = 'http://10.81.3.113:8888';
+      rsConfig.control = 'https://nas.qppp.top:22432/';
       rsConfig.suffix = '';
       break;
   }

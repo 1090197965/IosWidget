@@ -52,9 +52,11 @@ export class ScriptableController {
 
   async mergeSendMessage(data: IRecordData, req) {
     const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + data.driveName);
-    data.message = message.message;
-    data.emojiImg = message.emojiImg;
-    data.emojiCount = message.emojiCount;
+    if (message) {
+      data.message = message.message;
+      data.emojiImg = message.emojiImg;
+      data.emojiCount = message.emojiCount;
+    }
     return data;
   }
 

@@ -3,6 +3,7 @@ import { IRecordData } from "../interface/widget.interface";
 
 const $: IEnv = importModule('Env');
 const widgetConfigModule = importModule('WidgetConfig');
+// @ts-ignore
 const widgetConfig = await widgetConfigModule.getConfig();
 
 if (config.runsInAccessoryWidget) {
@@ -17,7 +18,9 @@ const address = $.getdata('ABL-address');
 log('获取成功: ' + rs);
 log(JSON.parse(address))
 
+// @ts-ignore
 const apiRs = await record(widgetConfig.url, widgetConfig.target);
+// @ts-ignore
 const img = await getLocationImg(apiRs);
 
 const warmUpWidget = new ListWidget();

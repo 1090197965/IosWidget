@@ -4,7 +4,7 @@ import * as process from "process";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: "http://10.81.3.113:8888",
+    origin: ['http://localhost:8888', 'http://10.81.3.113:8888', 'https://nas.qppp.top:22432'],
     credentials: true,
     allowedHeaders: ['content-type', 'X-Virtual-Env', 'X-Requested-With'],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",

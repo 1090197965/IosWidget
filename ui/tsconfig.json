@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "ES2015",
+    "module": "ES2022",
     "declaration": true,
     "allowJs": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "ES2015",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",

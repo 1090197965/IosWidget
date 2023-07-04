@@ -10,9 +10,11 @@ const $: IEnv = importModule('Env');
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const widgetConfigModule = importModule('WidgetConfig');
+// @ts-ignore
 const widgetConfig = await widgetConfigModule.getConfig();
 
 // 组件初始化
+// @ts-ignore
 await run();
 
 async function run() {

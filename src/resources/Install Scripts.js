@@ -20,25 +20,25 @@ try {
 
 const scripts = [
   {
-    moduleName: 'Collect',
-    url: urlProd + '/script/Collect.js',
+    moduleName: 'CountDown',
+    url: urlProd + '/script/CountDown.js',
   },
-  {
-    moduleName: 'WarmUp',
-    url: urlProd + '/script/WarmUp.js',
-  },
-  {
-    moduleName: 'HomeWidget',
-    url: urlProd + '/script/HomeWidget.js',
-  },
+  // {
+  //   moduleName: 'WarmUp',
+  //   url: urlProd + '/script/WarmUp.js',
+  // },
+  // {
+  //   moduleName: 'HomeWidget',
+  //   url: urlProd + '/script/HomeWidget.js',
+  // },
   // {
   //   moduleName: 'Env',
   //   url: urlProd + '/script/Env.js',
   // },
-  {
-    moduleName: 'Install Scripts',
-    url: urlProd + '/script/Install%20Scripts.js',
-  },
+  // {
+  //   moduleName: 'Install Scripts',
+  //   url: urlProd + '/script/Install%20Scripts.js',
+  // },
   // {
   //   moduleName: 'Install Scripts Dev.js',
   //   url: urlProd + '/script/Install%20Scripts%20Dev.js',

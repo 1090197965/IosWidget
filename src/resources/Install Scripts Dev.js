@@ -19,18 +19,18 @@ const scripts = [
     moduleName: 'WidgetConfig',
     url: urlDev + '/script/WidgetConfig.js',
   },
-  {
-    moduleName: 'Collect',
-    url: urlDev + '/script/Collect.js',
-  },
-  {
-    moduleName: 'WarmUp',
-    url: urlDev + '/script/WarmUp.js',
-  },
-  {
-    moduleName: 'HomeWidget',
-    url: urlDev + '/script/HomeWidget.js',
-  },
+  // {
+  //   moduleName: 'Collect',
+  //   url: urlDev + '/script/Collect.js',
+  // },
+  // {
+  //   moduleName: 'WarmUp',
+  //   url: urlDev + '/script/WarmUp.js',
+  // },
+  // {
+  //   moduleName: 'HomeWidget',
+  //   url: urlDev + '/script/HomeWidget.js',
+  // },
   {
     moduleName: 'Install Scripts',
     url: urlDev + '/script/Install%20Scripts.js',

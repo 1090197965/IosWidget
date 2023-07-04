@@ -36,3 +36,4 @@ lerna-debug.log*
 /file_cache/
 /ui/node_modules/
 /ui/.idea/
+/ui/dist/
