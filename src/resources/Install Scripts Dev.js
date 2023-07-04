@@ -9,7 +9,6 @@
 const $ = importModule('Env');
 // const widgetConfig = importModule('WidgetConfig');
 const urlDev = 'http://10.81.3.113:9000';
-const urlProd = 'https://nas.qppp.top:22431';
 
 const scripts = [
   {
@@ -29,8 +28,8 @@ const scripts = [
     url: urlDev + '/script/WarmUp.js',
   },
   {
-    moduleName: 'HomeWidget.ts',
-    url: url + '/script/HomeWidget.ts.js',
+    moduleName: 'HomeWidget',
+    url: urlDev + '/script/HomeWidget.js',
   },
   {
     moduleName: 'Install Scripts',

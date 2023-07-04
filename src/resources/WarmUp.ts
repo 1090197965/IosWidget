@@ -2,7 +2,8 @@ import { IEnv } from "../interface/Env";
 import { IRecordData } from "../interface/widget.interface";
 
 const $: IEnv = importModule('Env');
-const widgetConfig = importModule('WidgetConfig');
+const widgetConfigModule = importModule('WidgetConfig');
+const widgetConfig = await widgetConfigModule.getConfig();
 
 if (config.runsInAccessoryWidget) {
   if (!$.hasdata('warm-up-count3')) {
@@ -40,7 +41,8 @@ async function record(url, target) {
   log(res);
   // checkVersion(response.version);
 
-  $.setdata('Home-Widget-Data', res)
+  const suffix = widgetConfig.suffix ? widgetConfig.suffix : '';
+  $.setdata('Home-Widget-Data' + suffix, res)
   return response.data as IRecordData;
 }
 

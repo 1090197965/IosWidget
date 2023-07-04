@@ -10,7 +10,7 @@ const $: IEnv = importModule('Env');
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const widgetConfig = importModule('WidgetConfig');
-const homeUrl = 'http://10.81.3.113:99';
+const homeUrl = 'http://10.81.3.113:8888';
 
 // 组件初始化
 await run();

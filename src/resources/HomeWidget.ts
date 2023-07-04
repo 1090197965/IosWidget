@@ -9,7 +9,8 @@ import { IRecordData } from '../interface/widget.interface';
 const $: IEnv = importModule('Env');
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-const widgetConfig = importModule('WidgetConfig');
+const widgetConfigModule = importModule('WidgetConfig');
+const widgetConfig = await widgetConfigModule.getConfig();
 
 // 组件初始化
 await run();
@@ -32,7 +33,7 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        web.loadURL(widgetConfig.controlDev + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
+        web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
         web.present();
         break;
       case 1:
@@ -103,7 +104,8 @@ async function getLocationImg(data: IRecordData) {
 }
 
 async function record() {
-  const res = $.getdata('Home-Widget-Data')
+  const suffix = widgetConfig.suffix ? widgetConfig.suffix : '';
+  const res = $.getdata('Home-Widget-Data' + suffix)
   const response = JSON.parse(res);
   log('获取缓存数据');
   log(response);
@@ -190,7 +192,7 @@ async function getBatteryIcon(
   } else {
     // 电池电量百分比
     const titleStack = titleBgStack.addStack();
-    const titleText = titleStack.addText(`${batteryLevelFloat.toFixed(3) * 100}%`);
+    const titleText = titleStack.addText(`${(batteryLevelFloat * 100).toFixed(1)}%`);
     titleText.font = Font.systemFont(14);
     titleText.textColor = new Color('#ffffff', 0.8);
     titleStack.addSpacer(5);
