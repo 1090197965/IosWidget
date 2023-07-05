@@ -1,4 +1,4 @@
-import { IEnv } from "../interface/Env";
+import { IEnv } from "../../interface/Env";
 
 const $: IEnv = importModule('Env');
 

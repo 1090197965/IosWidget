@@ -1,5 +1,5 @@
-import { IEnv } from "../interface/Env";
-import { IRecordData } from "../interface/widget.interface";
+import { IEnv } from "../../interface/Env";
+import { IRecordData } from "../../interface/widget.interface";
 
 const $: IEnv = importModule('Env');
 const widgetConfigModule = importModule('WidgetConfig');

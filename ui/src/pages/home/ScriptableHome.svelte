@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { Divider, Input, Placeholder, Grids, Grid, Button, Icon } from 'stdf';
-    import scriptable from "../../api/scriptable";
+    import { Divider, Input, Button, Icon } from 'stdf';
     import IosWidget from "./module/IosWidget.svelte";
     import EmojiList from './module/imageList'
     import { IExcess } from "../../interface/scriptableHome.interface";
     import gsap from "gsap";
     import { Draggable } from "gsap/Draggable";
     gsap.registerPlugin(Draggable);
-    import { onMount, tick } from "svelte";
+    import { tick } from "svelte";
+    import { IWidgetRecordData } from "../../interface/scriptable.interface";
 
     let message: string;
     let time;
@@ -20,38 +20,10 @@
     let sendEmojiCount = 0;
     let imgRect:DOMRect;
     let emojiPath: string;
+    let emojiList: any[] = EmojiList;
 
-    onMount(() => {
-      Draggable.create(".drag-emoji", {
-        // minimumMovement: 10, 最小拖拽距离(像素)
-        bounds: '.drag-content',
-        onMove: (moveRect) => {
-          rect = moveRect
-        },
-        onDragEnd: (moveRect) => {
-          console.log('moveRect', moveRect)
-          gsap.to(moveRect.target, {
-            scaleX: 1,
-            scaleY: 1,
-            duration: 0.2,
-            filter: 'none',
-            zIndex: 20,
-            x: 0,
-            y: 0,
-          })
-          rect = null;
-        },
-        onDragStart: (moveRect) => {
-          gsap.to(moveRect.target, {
-            scaleX: 1.4,
-            scaleY: 1.4,
-            duration: 0.2,
-            filter: 'drop-shadow(0 0 5px #000000)',
-            zIndex: 20,
-          })
-        }
-      });
-    });
+    // onMount(() => {
+    // });
 
     const clickLabel4Fun = () => {
       console.log('1', 1)
@@ -109,7 +81,7 @@
     const createTouchAnimate = (className: string, startRect: DOMRect, endRect: DOMRect, option: any = {}, offset = 0) => {
       return gsap.fromTo(className, {
         rotation: 0,
-        opacity: 0.7,
+        opacity: 1,
         scaleX: 1,
         scaleY: 1,
         x: function(index, target, targets) { //function-based value
@@ -149,10 +121,42 @@
       });
     }
 
+    const initDrag = () => {
+      Draggable.create(".drag-emoji", {
+        // minimumMovement: 10, 最小拖拽距离(像素)
+        bounds: '.drag-content',
+        onMove: (moveRect) => {
+          rect = moveRect
+        },
+        onDragEnd: (moveRect) => {
+          console.log('moveRect', moveRect)
+          gsap.to(moveRect.target, {
+            scaleX: 1,
+            scaleY: 1,
+            duration: 0.2,
+            filter: 'none',
+            zIndex: 20,
+            x: 0,
+            y: 0,
+          })
+          rect = null;
+        },
+        onDragStart: (moveRect) => {
+          gsap.to(moveRect.target, {
+            scaleX: 1.4,
+            scaleY: 1.4,
+            duration: 0.2,
+            filter: 'drop-shadow(0 0 5px #000000)',
+            zIndex: 20,
+          })
+        }
+      });
+    }
+
     const startCount = () => {
       excessTl.push(gsap.to('.send-emoji-count', {
         fontSize: function(index, target, targets) {
-          return sendEmojiCount > 999 ? 24 : (24 + ((sendEmojiCount / 999 * 24) * 4))
+          return sendEmojiCount >= 999 ? 120 : (24 + ((sendEmojiCount / 999 * 24) * 4))
         },
         x: `random(-5}, +5})`,
         y: `random(-5}, +5})`,
@@ -163,9 +167,41 @@
       }))
     }
 
-    const getMouseRect = (value) => {
-      console.log('va', value);
-      return value;
+    const isBatteryShow = (
+      batteryLevel: number,
+      batteryIsCharging = false,
+    ): string => {
+      batteryLevel = batteryLevel * 100;
+      if (batteryLevel >= 70 || batteryIsCharging === true) {
+        return 'dcHeight';
+      }
+
+      if (batteryLevel >= 30) {
+        return 'dcMidden';
+      }
+
+      if (batteryLevel > 10) {
+        return 'dcLow';
+      }
+
+      return 'dcLow';
+    }
+
+    const handleLoaded = async (event) => {
+      const target:IWidgetRecordData = event.detail;
+      emojiList = emojiList.filter(item => {
+        if(item.show !== false){
+          return true;
+        }
+
+        return item.name === isBatteryShow(target.batteryLevel, target.isCharging);
+      }).map(item => {
+        item.show = true;
+        return item;
+      })
+
+      await tick();
+      initDrag();
     }
 
     const handleSend = () => {
@@ -193,34 +229,37 @@
 <div class="relative">
   <div class="pb-1 pt-1">
     <div class="mx-2 rounded-xl p-2 shadow">
-      <IosWidget bind:this={widget} />
+      <IosWidget bind:this={widget} on:loaded={handleLoaded} />
     </div>
   </div>
 
   <div class="drag-content mt-5 overflow-scroll">
     <Divider />
     <div class="bg-gray7">
-      {#each EmojiList as emojiItem}
-        <div class="inline-block w-1/4 p-2" style="vertical-align: top">
-          <div class="bg-gray8 text-center emoji-wrap">
-            <div
-              class="drag-emoji relative"
-              on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
-              on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}
-            >
-              <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 80px">
+      {#each emojiList as emojiItem}
+        {#if emojiItem.show !== false}
+          <div class="inline-block w-1/4 p-2" style="vertical-align: top">
+            <div class="bg-gray8 text-center emoji-wrap">
+              <div
+                class="drag-emoji relative"
+                on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
+                on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}
+              >
+                <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 80px">
+              </div>
             </div>
           </div>
-        </div>
+        {/if}
       {/each}
     </div>
   </div>
   <div class={`send-emoji-count ${sendEmojiCount > 0 ? '' : 'hidden'}`}>X{sendEmojiCount}</div>
-  <div class="fixed top-0 left-0 pointer-events-none">
+  <div class="pointer-events-none z-10">
     {#each excessList as excessEmoji, index}
       <img
-        class={`fixed pointer-events-none z-10 excess-emoji${index % 2}`}
-        src={`${excessEmoji.path}`} alt="" style="width: 80px">
+        class={`absolute left-0 pointer-events-none z-10 excess-emoji${index % 2}`}
+        src={`${excessEmoji.path}`} alt=""
+        style="width: 80px;top: -48px">
     {/each}
   </div>
 
@@ -241,8 +280,8 @@
 <style>
   .send-emoji-count {
 	  font-family: "Microsoft YaHei", Arial, Helvetica, sans-serif, "宋体";
-	  top: 85px;
-	  position: fixed;
+	  top: 35px;
+	  position: absolute;
 	  left: 130px;
 	  z-index: 30;
 	  color: #ffffff;

@@ -3,8 +3,8 @@
 // icon-color: light-gray; icon-glyph: magic;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { IEnv } from '../interface/Env';
-import { IRecordData } from '../interface/widget.interface';
+import { IEnv } from '../../interface/Env';
+import { IRecordData } from '../../interface/widget.interface';
 
 const $: IEnv = importModule('Env');
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

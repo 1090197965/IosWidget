@@ -1,7 +1,7 @@
 <script lang="ts">
   import { IHomeInfos, IWidgetRecordData } from "../../../interface/scriptable.interface";
   import gsap from "gsap";
-  import { tick } from "svelte";
+  import { createEventDispatcher, tick } from "svelte";
   import { Loading, Skeleton } from 'stdf';
   import { getUrlParams } from "./utils";
   import scriptable from "../../../api/scriptable";
@@ -13,6 +13,7 @@
   let emojiDom;
   let getParams = getUrlParams()
   let loading = false;
+  const emit = createEventDispatcher()
   console.log('getParams', getParams);
 
   $: target = infos?.target;
@@ -28,6 +29,7 @@
     if (response.data.code === 0) {
       infos = response.data.data
       path = response.data.data.target.emojiImg
+      emit('loaded', response.data.data.target)
     }
   });
 
