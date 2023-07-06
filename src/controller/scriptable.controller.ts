@@ -56,12 +56,26 @@ export class ScriptableController {
       data.message = message.message;
       data.emojiImg = message.emojiImg;
       data.emojiCount = message.emojiCount;
+
+      message.mergeTotal = message.mergeTotal + 1;
+
+      const time = new Date().getTime();
+      const diff = time - message.createTime;
+      // 如果发送时间超过1个小时并且读的次数超过3次
+      if (message.mergeTotal >= 3 && diff > 90 * 60 * 1000) {
+        await this.cacheManager.del(SEND_MESSAGE_DATA + message.driveName);
+      } else {
+        await this.cacheManager.set(SEND_MESSAGE_DATA + message.driveName, message);
+      }
     }
+
     return data;
   }
 
   @Post('sendMessage')
   async sendMessage(@Body() body: ISendMessage, @Res() res: Response) {
+    body.createTime = new Date().getTime();
+    body.mergeTotal = 0;
     await this.cacheManager.set(SEND_MESSAGE_DATA + body.driveName, body);
 
     res.json({

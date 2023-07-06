@@ -3,6 +3,7 @@
     import { routes } from './route';
     import { NavBar, Icon, Mask, Loading, Skeleton, Divider } from 'stdf';
     import menuList from './data/menuList';
+    import { getUrlParams } from "./pages/home/module/utils";
 
     // 循环 menuList，将所有元素的 childs 组成一个数组
     const menuListArr = menuList.reduce((acc, cur) => {
@@ -17,9 +18,11 @@
     let theme = localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
     //截取字符?后面的所有字符
     let urlLang = window.location.href.split('?')[1];
-    let urlParams = new URLSearchParams(urlLang);
+    // let urlParams = new URLSearchParams(urlLang);
     let visible = false;
-    let isDev = import.meta.env.DEV;
+    let getParams = getUrlParams()
+    console.log('getParams', getParams);
+    let isDev = getParams.dev;
 
       $: showLeft = $location !== '/';
     //手动切换主题
@@ -49,7 +52,7 @@
     }
 </script>
 
-<main class="bg-gray9 dark:bg-gray5 text-black dark:text-white/90 relative pb-5 text-justify w-screen antialiased" style="min-height: 100vh">
+<main class="bg-gray9 dark:bg-gray5 text-black dark:text-white/90 relative pb-5 text-justify w-screen antialiased" >
   <Mask visible={visible} backdropBlur="sm" opacity={0} on:clickMask={() => (visible = false)}>
     <div style="padding-top: 50vh"><Loading type={'4_1'} /></div>
   </Mask>

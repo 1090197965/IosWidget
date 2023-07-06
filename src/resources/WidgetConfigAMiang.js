@@ -5,6 +5,7 @@ const getConfig = async() => {
     url: 'https://nas.qppp.top:22431',
     control: 'https://nas.qppp.top:22432/',
     debug: false,
+    suffix: '',
   }
 }
 

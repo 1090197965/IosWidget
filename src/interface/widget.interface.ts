@@ -43,4 +43,6 @@ export interface ISendMessage {
   emojiImg?: string;
   emojiCount?: number;
   message?: string;
+  createTime?: number;
+  mergeTotal?: number;
 }

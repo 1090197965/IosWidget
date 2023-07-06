@@ -26,11 +26,12 @@ async function run() {
   } else if (config.runsInApp) {
     let rs = 0;
     if (args.widgetParameter !== 'widget') {
+      log(args);
       const notice = new Alert();
       notice.addAction('发送消息');
       notice.addAction('预览组件');
       notice.addCancelAction('取消操作');
-      const rs = await notice.presentSheet();
+      rs = await notice.presentSheet();
     }
 
     switch (rs) {
@@ -38,8 +39,8 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
-        web.present();
+        await web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
+        await web.present(true);
         break;
       case 1:
         const data = await record(widgetConfig.url, widgetConfig.target);
@@ -58,26 +59,22 @@ async function collect(target = '') {
   data.batteryLevel = Device.batteryLevel();
   data.config = config;
 
-  // try {
-  //   data.volume = Device.volume();
-  // } catch (e) {
-  //   log('获取音量数据失败');
-  //   log(e);
-  // }
-
   data.isCharging = Device.isCharging();
   data.systemName = Device.systemName();
-  // data.isInPortrait = Device.isInPortrait() || Device.isInPortraitUpsideDown();
-  // data.isInLandscape =
-  //   Device.isInLandscapeLeft() || Device.isInLandscapeRight();
-  // data.isFace = Device.isFaceUp() || Device.isFaceDown();
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  Location.setAccuracyToHundredMeters();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  data.current100 = await Location.current();
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    Location.setAccuracyToHundredMeters();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    data.current100 = await Location.current();
+    $.setdata('ABL-address', JSON.stringify(data.current100));
+  } catch (e) {
+    data.current100 = JSON.parse($.getdata('ABL-address'));
+    log('定位错误');
+    log(e)
+  }
 
   log('数据采集成功');
   log(data);
@@ -102,9 +99,13 @@ async function getLocationImg(data: IRecordData) {
     ? data.backgroundImg
     : `https://api.mapbox.com/styles/v1/1090197965/cliu0f4j6001201pe63ny5jbt/static/pin-l+1a8ed5(${x},${y})/${mapX},${y},15.43,0/750x350?access_token=pk.eyJ1IjoiMTA5MDE5Nzk2NSIsImEiOiJjbGZhb3F6Mmowenp2M3JrZWVtZzByYXU0In0.PwIlPetXWAiQiCvEowzZMw`;
   log(url);
+  const cacheX = x.toFixed(3);
+  const cacheY = y.toFixed(3);
+  console.log(`当前获取到的坐标为${x}_${y}，缓存为：${cacheX}_${cacheY}`)
+
   return await getImageByUrl(
     url,
-    `temp_v3_${x}_${y}`,
+    `temp_v3_${cacheX}_${cacheY}`,
   );
 }
 
@@ -135,10 +136,7 @@ async function createWidget(data: IRecordData) {
     widget.addSpacer();
 
     if (data.emojiImg) {
-      log('开始加载表情');
-      const emoji = widget.addStack();
-      emoji.size = new Size(40, 40);
-      emoji.backgroundImage = await getBase64Img(data.emojiImg);
+      await messageRender(widget, data);
     }
 
     const floor = widget.addStack();
@@ -183,6 +181,60 @@ async function createWidget(data: IRecordData) {
     return widget;
   } catch (e) {
     log(e);
+  }
+}
+
+async function messageRender(stack: ListWidget, data: IRecordData) {
+  log('开始加载表情');
+  if (data.message) {
+    const messageWarp = stack.addStack();
+    // messageWarp.layoutVertically();
+
+    const messageStack = messageWarp.addStack();
+    messageStack.layoutVertically();
+    messageStack.centerAlignContent();
+    messageStack.size = new Size(15 * data.message.length, 30);
+    messageStack.backgroundColor = new Color('#ffffff', 0.7);
+    messageStack.cornerRadius = 10;
+    messageStack.setPadding(8, 8, 8, 8);
+    messageStack.centerAlignContent();
+
+    const messageText = messageStack.addText(data.message);
+    messageText.centerAlignText()
+    messageText.textColor = new Color('#000000', 0.5);
+    messageText.font = Font.systemFont(12);
+
+    // let path = new Path()
+    // path.move(new Point(0, 6))
+    // path.addLine(new Point(6, 6))
+    // path.addLine(new Point(3, 0))
+    // path.closeSubpath()
+    //
+    // let ctx = new DrawContext()
+    // ctx.size = new Size(7, 7)
+    // ctx.setFillColor(Color.black())
+    // ctx.addPath(path)
+    // ctx.strokePath()
+    //
+    // const triangleImage = messageWarp.addImage(ctx.getImage());
+    // triangleImage.imageSize = new Size(7, 7);
+  }
+
+  const messageStack = stack.addStack();
+  messageStack.layoutHorizontally();
+  messageStack.bottomAlignContent();
+
+  const emoji = messageStack.addImage(await getBase64Img(data.emojiImg));
+  emoji.imageSize = new Size(60, 60);
+
+  if (data.emojiCount > 0) {
+    const count = messageStack.addStack();
+    count.size = new Size(80, 60);
+    count.centerAlignContent();
+    count.layoutHorizontally();
+    const countText = count.addText('x' + data.emojiCount)
+    countText.textColor = new Color('#000000', 0.5)
+    count.addSpacer();
   }
 }
 
@@ -262,6 +314,7 @@ async function getImageByUrl(url, cacheKey: string = '', useCache = true) {
   log(cacheFile);
   // 判断是否有缓存
   if (useCache && FileManager.local().fileExists(cacheFile)) {
+    log('地图读取缓存文件');
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return Image.fromFile(cacheFile);

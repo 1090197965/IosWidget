@@ -30,6 +30,7 @@ document.addEventListener('touchstart', function (event) {
         event.preventDefault();
     }
 });
+
 let lastTouchEnd = 0;
 document.addEventListener(
     'touchend',

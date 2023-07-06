@@ -259,15 +259,16 @@
       <img
         class={`absolute left-0 pointer-events-none z-10 excess-emoji${index % 2}`}
         src={`${excessEmoji.path}`} alt=""
-        style="width: 80px;top: -48px">
+        style="width: 80px;top: 0">
     {/each}
   </div>
 
   <div>
     <Input
-      placeholder="有啥想说的"
+      placeholder="有啥想说的，为了最好的展示效果，字数最多控制在10个字内哈"
       bind:value={message}
       on:clicklabel4={clickLabel4Fun}
+      maxlength={15}
       clear
     />
     <Button state="info" on:click={handleSend}>
