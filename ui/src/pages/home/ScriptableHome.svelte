@@ -61,6 +61,8 @@
 
       const imgDom:Element = widget.getEmojiDom();
       imgRect = imgDom.getBoundingClientRect();
+      imgRect.x = imgRect.x + 5;
+      imgRect.y = imgRect.y - 10;
       await tick();
 
       // 重新设置动画

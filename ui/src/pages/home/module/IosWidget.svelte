@@ -13,6 +13,8 @@
   let emojiDom;
   let getParams = getUrlParams()
   let loading = false;
+  let message = '';
+  let readClassName = '';
   const emit = createEventDispatcher()
   console.log('getParams', getParams);
 
@@ -28,8 +30,10 @@
     console.log('response', response);
     if (response.data.code === 0) {
       infos = response.data.data
-      path = response.data.data.target.emojiImg
-      emit('loaded', response.data.data.target)
+      path = infos.target.emojiImg
+      message = infos.target.message;
+      readClassName = infos.target.sendMessageReadCount > 0 ? '' : 'unread';
+      emit('loaded', infos.target)
     }
   });
 
@@ -38,7 +42,7 @@
     return emojiDom;
   }
 
-  export const setPath = async (sendPath, count, message) => {
+  export const setPath = async (sendPath, count, newMessage) => {
     if (sendPath) {
       await tick();
       scriptable.sendMessage({
@@ -46,16 +50,25 @@
         target: getParams.target,
         emojiCount: count,
         emojiImg: sendPath,
-        message: message
-      }).then((response) => {
+        message: newMessage
+      }).then(async (response) => {
         console.log('response', response);
         if (response.data.code === 0) {
-          path = sendPath
-          gsap.from('.emoji-content', {
-            x: '-=100',
+          gsap.to(['.emoji-content', '.message-text-content'], {
+            x: '-=120',
             duration: 0.5,
             ease: "back.out(1.7)",
-            onComplete: () => {}
+            onComplete: async () => {
+              path = sendPath
+              message = newMessage;
+              await tick();
+              gsap.to(['.emoji-content', '.message-text-content'], {
+                x: '+=120',
+                duration: 0.5,
+                ease: "back.out(1.7)",
+                onComplete: () => {}
+              })
+            }
           })
         }
       });
@@ -92,7 +105,8 @@
   {#if target && drive}
     <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`background-image: url("${target.backgroundImg}"); min-height:160px`}'>
       <div class="emoji-mark table-cell">
-        <img bind:this={emojiDom} class="text-center pointer-events-none emoji-content m-5 unread" src={path} alt="" style="width: 80px">
+        <div class={`message-text-content ${message.length > 0 ? 'bg-white' : ''}`}>{message}</div>
+        <img bind:this={emojiDom} class={`text-center pointer-events-none emoji-content ${readClassName}`} src={path} alt="" style="width: 70px">
       </div>
       <div class="absolute bottom-0 left-0 bg-[#696969] opacity-60 rounded-xl w-28 h-10 m-2 pt-0.5 pl-2" style="">
         <div class="text-white text-xs">↙{getTime(target.time)} ↗{getTime(drive.time)}</div>
@@ -124,5 +138,16 @@
 <style>
   .unread {
 	  filter: contrast(50%);
+  }
+
+  .message-text-content {
+	  height: 28px;
+	  min-width: 50px;
+	  padding: 2px 5px;
+	  margin: 10px 0 2px 10px;
+	  border-radius: 7px;
+  }
+
+  .emoji-content {
   }
 </style>

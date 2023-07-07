@@ -22,8 +22,9 @@ export class ScriptableController {
 
   @Post('infos')
   async infos(@Body() body: ISendMessage, @Res() res: Response) {
-    const driveName = await this.cacheManager.get(RECORD_KEY + body.driveName);
-    const target = await this.cacheManager.get(RECORD_KEY + body.target);
+    let driveName = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.driveName);
+    let target = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.target);
+    target = await this.mergeSendMessage(target, body.driveName, body.driveName, false);
     res.json({
       code: 0,
       data: {
@@ -38,7 +39,7 @@ export class ScriptableController {
   async info(@Res() res: Response, @Query('name') name: string, @Req() req: Request) {
     const list = await this.cacheManager.get(FREQUENCY_KEY + name);
     let info = await this.cacheManager.get<IRecordData>(RECORD_KEY + name);
-    info = await this.mergeSendMessage(info, req)
+    info = await this.mergeSendMessage(info, info.driveName, info.target, false)
 
     res.json({
       code: 0,
@@ -50,26 +51,44 @@ export class ScriptableController {
     });
   }
 
-  async mergeSendMessage(data: IRecordData, req) {
-    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + data.driveName);
+  /**
+   *
+   * @param additionData 需要追加消息的数据
+   * @param readInfoName 获取对应的已读消息，如果传入值为qp，则获取qp发送的消息的可读信息
+   * @param messageName 获取消息本体信息，如果传入的值为qp，这获取qp发送的消息
+   * @param isWidget
+   */
+  async mergeSendMessage(additionData: IRecordData, readInfoName: string = "", messageName: string = "", isWidget = true) {
+    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + messageName);
+    const sendMessage = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + readInfoName);
     if (message) {
-      data.message = message.message;
-      data.emojiImg = message.emojiImg;
-      data.emojiCount = message.emojiCount;
+      additionData.message = message.message;
+      additionData.emojiImg = message.emojiImg;
+      additionData.emojiCount = message.emojiCount;
 
-      message.mergeTotal = message.mergeTotal + 1;
+      if (isWidget) {
+        message.mergeTotal = message.mergeTotal + 1;
 
-      const time = new Date().getTime();
-      const diff = time - message.createTime;
-      // 如果发送时间超过1个小时并且读的次数超过3次
-      if (message.mergeTotal >= 3 && diff > 90 * 60 * 1000) {
-        await this.cacheManager.del(SEND_MESSAGE_DATA + message.driveName);
-      } else {
-        await this.cacheManager.set(SEND_MESSAGE_DATA + message.driveName, message);
+        const time = new Date().getTime();
+        const diff = time - message.createTime;
+        // 如果发送时间超过1个小时并且读的次数超过3次
+        if (message.mergeTotal >= 3 && diff > 90 * 60 * 1000) {
+          await this.cacheManager.del(SEND_MESSAGE_DATA + messageName);
+        } else {
+          await this.cacheManager.set(SEND_MESSAGE_DATA + messageName, message);
+        }
       }
     }
 
-    return data;
+    // 检查消息是否已读
+    if (sendMessage) {
+      additionData.isSendMessage = true;
+      additionData.sendMessageReadCount = sendMessage.mergeTotal;
+    } else {
+      additionData.isSendMessage = false;
+    }
+
+    return additionData;
   }
 
   @Post('sendMessage')
@@ -120,7 +139,7 @@ export class ScriptableController {
     }
 
     console.log('获取到的数据', rsData);
-    rsData = await this.mergeSendMessage(rsData, req);
+    rsData = await this.mergeSendMessage(rsData, body.driveName, body.target);
 
     res.json({
       code: 0,

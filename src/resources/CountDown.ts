@@ -39,7 +39,7 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        await web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}`);
+        await web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}&ver=1`);
         await web.present(true);
         break;
       case 1:
@@ -142,7 +142,7 @@ async function createWidget(data: IRecordData) {
     const floor = widget.addStack();
     const bubbleStack = floor.addStack();
 
-    // 灰色的信息块，显示电池和信息
+    // 灰色的信息背景块，显示电池和信息
     bubbleStack.layoutVertically();
     bubbleStack.centerAlignContent();
     bubbleStack.size = new Size(110, 35);
@@ -174,6 +174,22 @@ async function createWidget(data: IRecordData) {
     battery.centerAlignContent();
     await getBatteryIcon(battery, batteryLevel, data.isCharging);
 
+    // 信息发送状态
+    if (data.isSendMessage) {
+      let sendStatusIcon: string;
+      if (data.sendMessageReadCount === 0) {
+        sendStatusIcon = '☷✉';
+      } else {
+        sendStatusIcon = '👀' + data.sendMessageReadCount;
+      }
+
+      battery.addSpacer(3);
+      const sendStatus = battery.addStack();
+      const sendText = sendStatus.addText(sendStatusIcon);
+      sendText.textColor = new Color('#ffffff', 0.8);
+      sendText.font = Font.systemFont(12);
+    }
+
     bubbleStack.addSpacer();
     floor.addSpacer();
 
@@ -193,7 +209,7 @@ async function messageRender(stack: ListWidget, data: IRecordData) {
     const messageStack = messageWarp.addStack();
     messageStack.layoutVertically();
     messageStack.centerAlignContent();
-    messageStack.size = new Size(15 * data.message.length, 30);
+    messageStack.size = new Size(Math.floor(13 * data.message.length + 16), 30);
     messageStack.backgroundColor = new Color('#ffffff', 0.7);
     messageStack.cornerRadius = 10;
     messageStack.setPadding(8, 8, 8, 8);
@@ -234,6 +250,7 @@ async function messageRender(stack: ListWidget, data: IRecordData) {
     count.layoutHorizontally();
     const countText = count.addText('x' + data.emojiCount)
     countText.textColor = new Color('#000000', 0.5)
+    countText.font = Font.systemFont(12);
     count.addSpacer();
   }
 }
@@ -251,14 +268,14 @@ async function getBatteryIcon(
     flashIco.resizable = true;
     flashIco.textColor = new Color('#ffffff', 0.8);
     flashIco.applyFittingContentMode();
-    flash.addSpacer(5);
+    flash.addSpacer(3);
   } else {
     // 电池电量百分比
     const titleStack = titleBgStack.addStack();
-    const titleText = titleStack.addText(`${(batteryLevelFloat * 100).toFixed(1)}%`);
-    titleText.font = Font.systemFont(14);
+    const titleText = titleStack.addText(`${Math.floor(batteryLevelFloat * 100)}%`);
+    titleText.font = Font.systemFont(12);
     titleText.textColor = new Color('#ffffff', 0.8);
-    titleStack.addSpacer(5);
+    titleStack.addSpacer(3);
   }
 
   // 电池本体功能

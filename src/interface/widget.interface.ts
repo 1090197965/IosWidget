@@ -26,7 +26,9 @@ export interface IRecordData {
   backgroundImgHash: string;
   emojiImg?: string;
   emojiCount?: number;
-  message: string;
+  message?: string;
+  sendMessageReadCount?: number;
+  isSendMessage?: boolean;
 }
 
 interface CurrentLocation {

@@ -18,7 +18,7 @@ const getConfig = async() => {
     case -1:
       return;
     case 0:
-      rsConfig.target = 'qp';
+      rsConfig.target = 'amiang';
       rsConfig.url = 'http://10.81.3.113:9000';
       rsConfig.control = 'http://10.81.3.113:8888';
       rsConfig.suffix = '_Dev';
