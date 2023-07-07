@@ -59,6 +59,11 @@ export class ScriptableController {
    * @param isWidget
    */
   async mergeSendMessage(additionData: IRecordData, readInfoName: string = "", messageName: string = "", isWidget = true) {
+    additionData.message = '';
+    additionData.emojiImg = '';
+    additionData.emojiCount = 0;
+    additionData.sendMessageReadCount = 0;
+
     const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + messageName);
     const sendMessage = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + readInfoName);
     if (message) {

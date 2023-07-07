@@ -30,8 +30,8 @@
     console.log('response', response);
     if (response.data.code === 0) {
       infos = response.data.data
-      path = infos.target.emojiImg
-      message = infos.target.message;
+      path = infos.target.emojiImg ?? ''
+      message = infos.target.message ?? '';
       readClassName = infos.target.sendMessageReadCount > 0 ? '' : 'unread';
       emit('loaded', infos.target)
     }
