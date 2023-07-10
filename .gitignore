@@ -37,3 +37,5 @@ lerna-debug.log*
 /ui/node_modules/
 /ui/.idea/
 /ui/dist/
+/packages/emojiToBase64/node_modules/
+/packages/emojiToBase64/.idea/
