@@ -106,7 +106,7 @@
     <div class="flex-col bg-cover h-40 bg-no-repeat relative rounded-xl" style='{`background-image: url("${target.backgroundImg}"); min-height:160px`}'>
       <div class="emoji-mark table-cell">
         <div class={`message-text-content ${message.length > 0 ? 'bg-white' : ''}`}>{message}</div>
-        <img bind:this={emojiDom} class={`text-center pointer-events-none emoji-content ${readClassName}`} src={path} alt="" style="width: 70px">
+        <img bind:this={emojiDom} class={`text-center pointer-events-none ml-2 emoji-content ${readClassName}`} src={path} alt="" style="width: 70px">
       </div>
       <div class="absolute bottom-0 left-0 bg-[#696969] opacity-60 rounded-xl w-28 h-10 m-2 pt-0.5 pl-2" style="">
         <div class="text-white text-xs">↙{getTime(target.time)} ↗{getTime(drive.time)}</div>

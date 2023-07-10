@@ -209,11 +209,15 @@
     const handleSend = () => {
       var tl = gsap.timeline({repeat: 0});
       killEl();
+      tl.to('.send-btn', {
+        x: '+=500',
+        ease: "elastic.inOut(1, 0.5)",
+        duration: 1
+      });
       tl.to(['.excess-emoji0', '.excess-emoji1'], {
         transform: `translate(${imgRect.x + 5}px, ${imgRect.y + 5}px) rotate(0) scale(1.2, 1.2)`,
         duration: 0.5
       })
-      widget.setPath('');
       tl.to(['.excess-emoji0', '.excess-emoji1', '.send-emoji-count'], {
         x: '+=500',
         ease: "elastic.inOut(1, 0.5)",
@@ -225,6 +229,11 @@
           emojiPath = '';
         }
       })
+      tl.to('.send-btn', {
+        x: 0,
+        ease: "elastic.inOut(1, 0.5)",
+        duration: 1
+      });
     }
 </script>
 
@@ -267,15 +276,17 @@
 
   <div>
     <Input
-      placeholder="有啥想说的，为了最好的展示效果，字数最多控制在10个字内哈"
+      placeholder="文字是非必须的哈，可以只发表情"
       bind:value={message}
       on:clicklabel4={clickLabel4Fun}
-      maxlength={15}
+      maxlength={30}
       clear
     />
     <Button state="info" on:click={handleSend}>
-      <Icon name="ri-mail-send-line" size={18} top={-2} />
-      发送
+      <div class="send-btn inline-block">
+        <Icon name="ri-mail-send-line" size={18} top={-2} />
+        发送
+      </div>
     </Button>
   </div>
 </div>
