@@ -126,7 +126,7 @@
     const initDrag = () => {
       Draggable.create(".drag-emoji", {
         // minimumMovement: 10, 最小拖拽距离(像素)
-        bounds: '.drag-content',
+        // bounds: '.drag-content',
         onMove: (moveRect) => {
           rect = moveRect
         },
@@ -244,19 +244,19 @@
     </div>
   </div>
 
-  <div class="drag-content mt-5 overflow-scroll">
+  <div class="drag-content mt-5 overflow-scroll" style="height: 330px">
     <Divider />
     <div class="bg-gray7">
       {#each emojiList as emojiItem}
         {#if emojiItem.show !== false}
-          <div class="inline-block w-1/4 p-2" style="vertical-align: top">
-            <div class="bg-gray8 text-center emoji-wrap">
+          <div class="inline-block w-1/4 p-2" style="vertical-align: top;">
+            <div class="bg-gray8 text-center emoji-wrap" style="padding-left: 5px">
               <div
                 class="drag-emoji relative"
                 on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
                 on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}
               >
-                <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 80px">
+                <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 70px">
               </div>
             </div>
           </div>

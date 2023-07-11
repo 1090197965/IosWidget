@@ -17,13 +17,17 @@ files.forEach(file => {
   const outputPath = path.join(outputDir, file);
   sharp(inputPath)
     .jpeg({ quality: 70 }) // 修改 JPEG 图片质量
-    .png({ compressionLevel: 9 }) // 修改 PNG 图片压缩级别
+    .png({ compressionLevel: 7 }) // 修改 PNG 图片压缩级别
+    .resize(80, 80, {
+      fit: 'inside'
+    })
     .toFile(outputPath);
 });
 
 // 将压缩后的图片转换为 base64 编码并保存到 txt 文件中
 const base64Data = files.map(file => {
   const outputPath = path.join(outputDir, file);
+  console.log('outputPath', outputPath);
   const data = fs.readFileSync(outputPath);
   return JSON.stringify({
     name: path.basename(file, path.extname(file)),
