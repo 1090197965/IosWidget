@@ -3,7 +3,7 @@
   import gsap from "gsap";
   import { createEventDispatcher, tick } from "svelte";
   import { Loading, Skeleton } from 'stdf';
-  import { getUrlParams } from "./utils";
+  import { getUrlParams, setEmojiNameCount } from "./utils";
   import scriptable from "../../../api/scriptable";
 
   export let infos:IHomeInfos;
@@ -42,7 +42,7 @@
     return emojiDom;
   }
 
-  export const setPath = async (sendPath, count, newMessage) => {
+  export const setPath = async (sendPath, count, newMessage, sendEmojiName) => {
     if (sendPath) {
       await tick();
       scriptable.sendMessage({
@@ -50,20 +50,23 @@
         target: getParams.target,
         emojiCount: count,
         emojiImg: sendPath,
-        message: newMessage
+        message: newMessage,
+        sendEmojiName,
       }).then(async (response) => {
         console.log('response', response);
         if (response.data.code === 0) {
           gsap.to(['.emoji-content', '.message-text-content'], {
-            x: '-=120',
+            x: '-=150',
             duration: 0.5,
             ease: "back.out(1.7)",
             onComplete: async () => {
-              path = sendPath
+              path = sendPath;
               message = newMessage;
+              readClassName = 'unread';
               await tick();
+              setEmojiNameCount(sendEmojiName);
               gsap.to(['.emoji-content', '.message-text-content'], {
-                x: '+=120',
+                x: '+=150',
                 duration: 0.5,
                 ease: "back.out(1.7)",
                 onComplete: () => {}

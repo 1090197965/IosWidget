@@ -8,6 +8,7 @@
     gsap.registerPlugin(Draggable);
     import { tick } from "svelte";
     import { IWidgetRecordData } from "../../interface/scriptable.interface";
+    import { getEmojiNameCount } from "./module/utils";
 
     let message: string;
     let time;
@@ -20,7 +21,14 @@
     let sendEmojiCount = 0;
     let imgRect:DOMRect;
     let emojiPath: string;
-    let emojiList: any[] = EmojiList;
+    let emojiName: string;
+
+    const emojiSort = getEmojiNameCount()
+    let emojiList: any[] = EmojiList.sort((a, b) => {
+      const aValue = emojiSort[a.name] ?? 0;
+      const bValue = emojiSort[b.name] ?? 0;
+      return bValue - aValue;
+    });
 
     // onMount(() => {
     // });
@@ -35,7 +43,7 @@
       excessTl = []
     }
 
-    const mouseDown = async (e: TouchEvent, path) => {
+    const mouseDown = async (e: TouchEvent, path, name) => {
       if (e.targetTouches && e.targetTouches.length === 0) {
         return;
       }
@@ -43,6 +51,7 @@
       killEl();
       if (!emojiPath || emojiPath !== path) {
         emojiPath = path
+        emojiName = name;
         sendEmojiCount = 0;
       }
 
@@ -223,7 +232,7 @@
         ease: "elastic.inOut(1, 0.5)",
         stagger: 0.03,
         onComplete: async () => {
-          await widget.setPath(emojiPath, sendEmojiCount, message);
+          await widget.setPath(emojiPath, sendEmojiCount, message, emojiName);
           message = '';
           sendEmojiCount = 0;
           emojiPath = '';
@@ -253,8 +262,8 @@
             <div class="bg-gray8 text-center emoji-wrap" style="padding-left: 5px">
               <div
                 class="drag-emoji relative"
-                on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path)}
-                on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path)}
+                on:touchstart|preventDefault={(e) => mouseDown(e, emojiItem.path, emojiItem.name)}
+                on:touchend|preventDefault={(e) => mouseUp(e, emojiItem.path, emojiItem.name)}
               >
                 <img class="text-center pointer-events-none" src={`${emojiItem.path}`} alt="" style="width: 70px">
               </div>
