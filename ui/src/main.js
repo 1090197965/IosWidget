@@ -1,5 +1,6 @@
 import App from './App.svelte';
 import './app.css';
+import VConsole from 'vconsole';
 
 //截取字符?后面的所有字符
 let urlLang = window.location.href.split('?')[1];
@@ -47,6 +48,11 @@ document.addEventListener(
 document.addEventListener('gesturestart', function (event) {
     event.preventDefault();
 });
+
+// 移动端console工具
+if (import.meta.env.DEV) {
+  const vConsole = new VConsole();
+}
 
 const app = new App({
     target: document.getElementById('app'),

@@ -253,7 +253,7 @@
     </div>
   </div>
 
-  <div class="drag-content mt-5 overflow-scroll" style="height: 330px">
+  <div class="drag-content mt-5 overflow-y-scroll" style="height: 330px">
     <Divider />
     <div class="bg-gray7">
       {#each emojiList as emojiItem}
