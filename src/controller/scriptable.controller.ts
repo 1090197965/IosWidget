@@ -4,12 +4,14 @@ import {
   Get,
   Inject,
   Post,
-  Query, Req,
-  Res
-} from "@nestjs/common";
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { FileCache } from '../util/fileCache.class';
-import { IRecordData, ISendMessage } from "../interface/widget.interface";
+import { IRecordData, ISendMessage } from '../interface/widget.interface';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const dayjs = require('dayjs');
 
 const FREQUENCY_KEY = 'FREQUENCY_KEY';
@@ -22,9 +24,18 @@ export class ScriptableController {
 
   @Post('infos')
   async infos(@Body() body: ISendMessage, @Res() res: Response) {
-    let driveName = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.driveName);
-    let target = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.target);
-    target = await this.mergeSendMessage(target, body.driveName, body.driveName, false);
+    const driveName = await this.cacheManager.get<IRecordData>(
+      RECORD_KEY + body.driveName,
+    );
+    let target = await this.cacheManager.get<IRecordData>(
+      RECORD_KEY + body.target,
+    );
+    target = await this.mergeSendMessage(
+      target,
+      body.driveName,
+      body.driveName,
+      false,
+    );
     res.json({
       code: 0,
       data: {
@@ -36,10 +47,19 @@ export class ScriptableController {
   }
 
   @Get('info')
-  async info(@Res() res: Response, @Query('name') name: string, @Req() req: Request) {
+  async info(
+    @Res() res: Response,
+    @Query('name') name: string,
+    @Req() req: Request,
+  ) {
     const list = await this.cacheManager.get(FREQUENCY_KEY + name);
     let info = await this.cacheManager.get<IRecordData>(RECORD_KEY + name);
-    info = await this.mergeSendMessage(info, info.driveName, info.target, false)
+    info = await this.mergeSendMessage(
+      info,
+      info.driveName,
+      info.target,
+      false,
+    );
 
     res.json({
       code: 0,
@@ -58,14 +78,23 @@ export class ScriptableController {
    * @param messageName 获取消息本体信息，如果传入的值为qp，这获取qp发送的消息
    * @param isWidget
    */
-  async mergeSendMessage(additionData: IRecordData, readInfoName: string = "", messageName: string = "", isWidget = true) {
+  async mergeSendMessage(
+    additionData: IRecordData,
+    readInfoName = '',
+    messageName = '',
+    isWidget = true,
+  ) {
     additionData.message = '';
     additionData.emojiImg = '';
     additionData.emojiCount = 0;
     additionData.sendMessageReadCount = 0;
 
-    const message = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + messageName);
-    const sendMessage = await this.cacheManager.get<ISendMessage>(SEND_MESSAGE_DATA + readInfoName);
+    const message = await this.cacheManager.get<ISendMessage>(
+      SEND_MESSAGE_DATA + messageName,
+    );
+    const sendMessage = await this.cacheManager.get<ISendMessage>(
+      SEND_MESSAGE_DATA + readInfoName,
+    );
     if (message) {
       additionData.message = message.message;
       additionData.emojiImg = message.emojiImg;
@@ -112,7 +141,11 @@ export class ScriptableController {
   }
 
   @Post('update')
-  async update(@Body() body: IRecordData, @Res() res: Response, @Req() req: Request) {
+  async update(
+    @Body() body: IRecordData,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
     let rsData: IRecordData;
     const cacheKey = FREQUENCY_KEY + body.driveName;
     const recordKey = RECORD_KEY + body.driveName;
@@ -136,7 +169,9 @@ export class ScriptableController {
     await this.cacheManager.set(recordKey, body);
 
     if (body.target) {
-      rsData = await this.cacheManager.get<IRecordData>(RECORD_KEY + body.target);
+      rsData = await this.cacheManager.get<IRecordData>(
+        RECORD_KEY + body.target,
+      );
     }
 
     if (!body.target || !rsData) {

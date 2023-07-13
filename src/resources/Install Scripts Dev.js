@@ -31,14 +31,14 @@ const scripts = [
   //   moduleName: 'HomeWidget',
   //   url: urlDev + '/script/HomeWidget.js',
   // },
-  {
-    moduleName: 'Install Scripts',
-    url: urlDev + '/script/Install%20Scripts.js',
-  },
-  {
-    moduleName: 'Install Scripts Dev',
-    url: urlDev + '/script/Install%20Scripts%20Dev.js',
-  },
+  // {
+  //   moduleName: 'Install Scripts',
+  //   url: urlDev + '/script/Install%20Scripts.js',
+  // },
+  // {
+  //   moduleName: 'Install Scripts Dev',
+  //   url: urlDev + '/script/Install%20Scripts%20Dev.js',
+  // },
 ];
 
 function update() {

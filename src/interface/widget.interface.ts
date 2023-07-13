@@ -47,4 +47,5 @@ export interface ISendMessage {
   message?: string;
   createTime?: number;
   mergeTotal?: number;
+  sendEmojiName?: string;
 }

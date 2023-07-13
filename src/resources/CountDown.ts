@@ -39,7 +39,10 @@ async function run() {
         return;
       case 0:
         const web = new WebView();
-        await web.loadURL(widgetConfig.control + `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}&ver=1`);
+        await web.loadURL(
+          widgetConfig.control +
+            `/#/?driveName=${widgetConfig.driveName}&target=${widgetConfig.target}&ver=1`,
+        );
         await web.present(true);
         break;
       case 1:
