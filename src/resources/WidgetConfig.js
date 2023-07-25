@@ -1,10 +1,10 @@
-const getConfig = async() => {
+const getConfig = async () => {
   const rsConfig = {
     target: '',
     url: '',
     control: '',
     suffix: '',
-  }
+  };
   let rs = 1;
   if (config.runsInApp && args.widgetParameter !== 'widget') {
     const notice = new Alert();
@@ -18,6 +18,7 @@ const getConfig = async() => {
     case -1:
       return;
     case 0:
+      rsConfig.driveName = 'qp';
       rsConfig.target = 'amiang';
       rsConfig.url = 'http://10.81.3.113:9000';
       rsConfig.control = 'http://10.81.3.113:8888';
@@ -25,23 +26,24 @@ const getConfig = async() => {
       break;
     case 1:
     default:
+      rsConfig.driveName = 'qp';
       rsConfig.target = 'amiang';
       rsConfig.url = 'https://nas.qppp.top:22431';
       rsConfig.control = 'https://nas.qppp.top:22432/';
       rsConfig.suffix = '';
       break;
   }
-  log('获取配置')
-  log(rsConfig)
+  log('获取配置');
+  log(rsConfig);
 
   return {
-    driveName: 'qp',
+    driveName: rsConfig.driveName,
     target: rsConfig.target,
     url: rsConfig.url,
     control: rsConfig.control,
-    suffix: rsConfig.suffix
-  }
-}
+    suffix: rsConfig.suffix,
+  };
+};
 
 module.exports = {
   getConfig,

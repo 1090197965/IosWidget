@@ -4,7 +4,8 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "imgToBase64": "node ./imgToBase64.js"
   },
   "author": "",
   "license": "ISC",

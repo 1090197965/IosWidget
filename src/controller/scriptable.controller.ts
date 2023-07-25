@@ -11,6 +11,7 @@ import {
 import { Response, Request } from 'express';
 import { FileCache } from '../util/fileCache.class';
 import { IRecordData, ISendMessage } from '../interface/widget.interface';
+import { getDwellTimeMinutes } from "../util";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dayjs = require('dayjs');
 
@@ -52,7 +53,9 @@ export class ScriptableController {
     @Query('name') name: string,
     @Req() req: Request,
   ) {
-    const list = await this.cacheManager.get(FREQUENCY_KEY + name);
+    const list = await this.cacheManager.get<IRecordData[]>(
+      FREQUENCY_KEY + name,
+    );
     let info = await this.cacheManager.get<IRecordData>(RECORD_KEY + name);
     info = await this.mergeSendMessage(
       info,
@@ -60,6 +63,7 @@ export class ScriptableController {
       info.target,
       false,
     );
+    info.dwellTimeMinutes = getDwellTimeMinutes(info, list);
 
     res.json({
       code: 0,
@@ -146,11 +150,12 @@ export class ScriptableController {
     @Res() res: Response,
     @Req() req: Request,
   ) {
-    let rsData: IRecordData;
-    const cacheKey = FREQUENCY_KEY + body.driveName;
-    const recordKey = RECORD_KEY + body.driveName;
-    const cache = await this.cacheManager.wrap<IRecordData[]>(
-      cacheKey,
+    let targetData: IRecordData;
+    let targetList: IRecordData[];
+    const driveKey = FREQUENCY_KEY + body.driveName;
+    const currentDriveKey = RECORD_KEY + body.driveName;
+    const driveCacheList = await this.cacheManager.wrap<IRecordData[]>(
+      driveKey,
       async () => [],
     );
 
@@ -163,27 +168,38 @@ export class ScriptableController {
     const timeOffect = new Date().getTimezoneOffset() / 60 + 8;
     body.time = dayjs().add(timeOffect, 'hour').format('YYYY-MM-DD HH:mm:ss');
     console.log(body);
-    cache.push(body);
+    driveCacheList.push(body);
 
-    await this.cacheManager.set(cacheKey, cache.splice(cache.length - 90));
-    await this.cacheManager.set(recordKey, body);
+    // 只需要最近-90条数据即可
+    await this.cacheManager.set(driveKey, driveCacheList.splice(-90));
+    await this.cacheManager.set(currentDriveKey, body);
 
     if (body.target) {
-      rsData = await this.cacheManager.get<IRecordData>(
+      targetData = await this.cacheManager.get<IRecordData>(
         RECORD_KEY + body.target,
+      );
+      targetList = await this.cacheManager.wrap<IRecordData[]>(
+        FREQUENCY_KEY + body.target,
+        async () => [],
       );
     }
 
-    if (!body.target || !rsData) {
-      rsData = body;
+    if (!body.target || !targetData) {
+      targetData = body;
+      targetList = driveCacheList;
     }
 
-    console.log('获取到的数据', rsData);
-    rsData = await this.mergeSendMessage(rsData, body.driveName, body.target);
+    console.log('获取到的数据', targetData);
+    targetData = await this.mergeSendMessage(
+      targetData,
+      body.driveName,
+      body.target,
+    );
+    targetData.dwellTimeMinutes = getDwellTimeMinutes(targetData, targetList);
 
     res.json({
       code: 0,
-      data: rsData,
+      data: targetData,
       message: '',
       version: 'V3',
     });
