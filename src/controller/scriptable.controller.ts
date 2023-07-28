@@ -11,17 +11,24 @@ import {
 import { Response, Request } from 'express';
 import { FileCache } from '../util/fileCache.class';
 import { IRecordData, ISendMessage } from '../interface/widget.interface';
-import { getDwellTimeMinutes } from "../util";
+import { ScriptableService } from '../service/scriptable.service';
+import base64 from './base64';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dayjs = require('dayjs');
 
 const FREQUENCY_KEY = 'FREQUENCY_KEY';
 const RECORD_KEY = 'RECORD_KEY';
 const SEND_MESSAGE_DATA = 'SEND_MESSAGE_DATA';
+const MEET_CACHE = 'MEET_CACHE';
 
 @Controller('scriptable')
 export class ScriptableController {
-  constructor(@Inject(FileCache) private readonly cacheManager: FileCache) {}
+  constructor(
+    @Inject(FileCache) private readonly cacheManager: FileCache,
+    private readonly service: ScriptableService,
+  ) {
+    this.service.setCache(cacheManager);
+  }
 
   @Post('infos')
   async infos(@Body() body: ISendMessage, @Res() res: Response) {
@@ -31,7 +38,7 @@ export class ScriptableController {
     let target = await this.cacheManager.get<IRecordData>(
       RECORD_KEY + body.target,
     );
-    target = await this.mergeSendMessage(
+    target = await this.service.mergeSendMessage(
       target,
       body.driveName,
       body.driveName,
@@ -47,6 +54,15 @@ export class ScriptableController {
     });
   }
 
+  @Post('getBase64')
+  getBase64(@Res() res: Response, @Query('name') name: string) {
+    res.json({
+      code: 0,
+      data: base64,
+      message: '',
+    });
+  }
+
   @Get('info')
   async info(
     @Res() res: Response,
@@ -57,13 +73,13 @@ export class ScriptableController {
       FREQUENCY_KEY + name,
     );
     let info = await this.cacheManager.get<IRecordData>(RECORD_KEY + name);
-    info = await this.mergeSendMessage(
+    info = await this.service.mergeSendMessage(
       info,
       info.driveName,
       info.target,
       false,
     );
-    info.dwellTimeMinutes = getDwellTimeMinutes(info, list);
+    info.dwellTimeMinutes = this.service.getDwellTimeMinutes(info, list);
 
     res.json({
       code: 0,
@@ -73,60 +89,6 @@ export class ScriptableController {
       },
       message: '',
     });
-  }
-
-  /**
-   *
-   * @param additionData 需要追加消息的数据
-   * @param readInfoName 获取对应的已读消息，如果传入值为qp，则获取qp发送的消息的可读信息
-   * @param messageName 获取消息本体信息，如果传入的值为qp，这获取qp发送的消息
-   * @param isWidget
-   */
-  async mergeSendMessage(
-    additionData: IRecordData,
-    readInfoName = '',
-    messageName = '',
-    isWidget = true,
-  ) {
-    additionData.message = '';
-    additionData.emojiImg = '';
-    additionData.emojiCount = 0;
-    additionData.sendMessageReadCount = 0;
-
-    const message = await this.cacheManager.get<ISendMessage>(
-      SEND_MESSAGE_DATA + messageName,
-    );
-    const sendMessage = await this.cacheManager.get<ISendMessage>(
-      SEND_MESSAGE_DATA + readInfoName,
-    );
-    if (message) {
-      additionData.message = message.message;
-      additionData.emojiImg = message.emojiImg;
-      additionData.emojiCount = message.emojiCount;
-
-      if (isWidget) {
-        message.mergeTotal = message.mergeTotal + 1;
-
-        const time = new Date().getTime();
-        const diff = time - message.createTime;
-        // 如果发送时间超过1个小时并且读的次数超过3次
-        if (message.mergeTotal >= 3 && diff > 90 * 60 * 1000) {
-          await this.cacheManager.del(SEND_MESSAGE_DATA + messageName);
-        } else {
-          await this.cacheManager.set(SEND_MESSAGE_DATA + messageName, message);
-        }
-      }
-    }
-
-    // 检查消息是否已读
-    if (sendMessage) {
-      additionData.isSendMessage = true;
-      additionData.sendMessageReadCount = sendMessage.mergeTotal;
-    } else {
-      additionData.isSendMessage = false;
-    }
-
-    return additionData;
   }
 
   @Post('sendMessage')
@@ -154,7 +116,7 @@ export class ScriptableController {
     let targetList: IRecordData[];
     const driveKey = FREQUENCY_KEY + body.driveName;
     const currentDriveKey = RECORD_KEY + body.driveName;
-    const driveCacheList = await this.cacheManager.wrap<IRecordData[]>(
+    const driveList = await this.cacheManager.wrap<IRecordData[]>(
       driveKey,
       async () => [],
     );
@@ -168,10 +130,10 @@ export class ScriptableController {
     const timeOffect = new Date().getTimezoneOffset() / 60 + 8;
     body.time = dayjs().add(timeOffect, 'hour').format('YYYY-MM-DD HH:mm:ss');
     console.log(body);
-    driveCacheList.push(body);
+    driveList.push(body);
 
     // 只需要最近-90条数据即可
-    await this.cacheManager.set(driveKey, driveCacheList.splice(-90));
+    await this.cacheManager.set(driveKey, driveList.slice(-90));
     await this.cacheManager.set(currentDriveKey, body);
 
     if (body.target) {
@@ -186,22 +148,40 @@ export class ScriptableController {
 
     if (!body.target || !targetData) {
       targetData = body;
-      targetList = driveCacheList;
+      targetList = driveList;
     }
 
-    console.log('获取到的数据', targetData);
-    targetData = await this.mergeSendMessage(
+    targetData = await this.service.mergeSendMessage(
       targetData,
       body.driveName,
       body.target,
     );
-    targetData.dwellTimeMinutes = getDwellTimeMinutes(targetData, targetList);
+
+    targetData.dwellTimeMinutes = this.service.getDwellTimeMinutes(
+      targetData,
+      targetList,
+    );
+
+    targetData.isMeet = this.service.isMeet(driveList, targetList);
+    if (targetData.isMeet) {
+      this.cacheManager.set(
+        MEET_CACHE + body.driveName,
+        true,
+        60 * 60 * 2 * 1000,
+      );
+    }
+    targetData.isMeetPast = await this.cacheManager.get(
+      MEET_CACHE + body.driveName,
+    );
+
+    console.log('获取到的数据1', targetData);
 
     res.json({
       code: 0,
       data: targetData,
       message: '',
-      version: 'V3',
+      version: 'v1',
+      base64Length: JSON.stringify(base64).length + '',
     });
   }
 }

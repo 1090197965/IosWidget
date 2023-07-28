@@ -30,6 +30,8 @@ export interface IRecordData {
   sendMessageReadCount?: number;
   isSendMessage?: boolean;
   dwellTimeMinutes?: number;
+  isMeet?: boolean;
+  isMeetPast?: boolean;
 }
 
 interface CurrentLocation {
