@@ -459,7 +459,7 @@ async function getBase64File(cacheKey = '') {
     // @ts-ignore
     return JSON.parse(FileManager.local().readString(cacheFile));
   } else {
-    return {};
+    return null;
   }
 }
 
@@ -470,7 +470,7 @@ async function setBase64File(fileName = '', base64 = '') {
     fileName,
   );
   try {
-    FileManager.local().writeString(cacheFile, base64);
+    FileManager.local().writeString(cacheFile, JSON.stringify(base64));
     return base64;
   } catch (e) {
     log('base64列表加载失败');
@@ -509,9 +509,9 @@ async function checkVersion(version: string) {
 
 async function getBase64(reload = false) {
   let rs;
-  if (!reload && $.isFileExists('imageList.json')) {
+  if (!reload) {
     log('开始读取临时图片文件');
-    rs = JSON.parse(await getBase64File('imageList.json'));
+    rs = await getBase64File('imageListV1.json');
   }
 
   if (reload || !rs) {
@@ -526,7 +526,7 @@ async function getBase64(reload = false) {
     const response = JSON.parse(res);
     rs = response.data;
     log('保存到icloud');
-    await setBase64File('imageList.json', JSON.stringify(rs));
+    await setBase64File('imageListV1.json', rs);
   }
 
   log('已获取图片文件信息' + typeof rs);
