@@ -8,3 +8,4 @@ https://github.com/evilbutcher/Scriptables
 * 地图刷新有消息信息通知
 * 打开ui的时候自动检查进行系统更新
 * 天气系统
+* 回车会导致ui界面刷新

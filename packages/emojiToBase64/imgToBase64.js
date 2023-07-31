@@ -15,10 +15,15 @@ const base64Data = files.map(file => {
   const inputDir2 = path.join(inputDir, file);
   console.log('inputDir', inputDir2);
   const data = fs.readFileSync(inputDir2);
-  return JSON.stringify({
+  return {
     name: path.basename(file, path.extname(file)),
     show: false,
     path: 'data:image/png;base64,' + data.toString('base64')
-  });
+  };
 });
-fs.writeFileSync('./imgToBase64/base64.json', JSON.stringify(base64Data));
+
+const rs = {};
+base64Data.forEach(item => {
+  rs[item.name] = item.path;
+})
+fs.writeFileSync('./imgToBase64/base64.json', JSON.stringify(rs));

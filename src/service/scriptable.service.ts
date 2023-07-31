@@ -101,7 +101,10 @@ export class ScriptableService {
     if (infoRecent) {
       console.log('infoRecent', infoRecent);
       return (
-        (new Date().getTime() - new Date(infoRecent.time).getTime()) / 1000 / 60
+        (new Date().getTime() -
+          new Date(infoRecent.time + ' GMT+0800').getTime()) /
+        1000 /
+        60
       );
     } else {
       return 0;
@@ -140,13 +143,19 @@ export class ScriptableService {
     // 只检查1小时内的所有节点
     contrastDrive.forEach((drive) => {
       // 距离当前超过1个小时的节点直接跳过
-      if (isMeet || time - new Date(drive.time).getTime() > 60 * 60 * 1000) {
+      if (
+        isMeet ||
+        time - new Date(drive.time + ' GMT+0800').getTime() > 60 * 60 * 1000
+      ) {
         return;
       }
 
       contrastTarget.forEach((target) => {
         // 距离当前超过1个小时的节点直接跳过
-        if (isMeet || time - new Date(target.time).getTime() > 60 * 60 * 1000) {
+        if (
+          isMeet ||
+          time - new Date(target.time + ' GMT+0800').getTime() > 60 * 60 * 1000
+        ) {
           return;
         }
 
