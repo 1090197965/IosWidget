@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { IRecordData, ISendMessage } from '../interface/widget.interface';
 import { FileCache } from '../util/fileCache.class';
+import { getBeiJinNowDate } from '../util';
+import eventDate from '../config/eventDate';
 
 const FREQUENCY_KEY = 'FREQUENCY_KEY';
 const RECORD_KEY = 'RECORD_KEY';
@@ -166,5 +168,29 @@ export class ScriptableService {
     });
 
     return isMeet;
+  }
+
+  async setExpandField(data: IRecordData) {
+    const now = getBeiJinNowDate();
+    const fullDate = now.toLocaleDateString();
+    const monthDate = `${now.getMonth() + 1}/${now.getDate()}`;
+    console.log('进行事件检查', now.toLocaleString(), fullDate, monthDate);
+    eventDate.forEach((date) => {
+      let compareDate;
+      switch (date.type) {
+        case 'year':
+          compareDate = monthDate;
+          break;
+        case 'full':
+          compareDate = fullDate;
+          break;
+      }
+
+      if (compareDate === date.date) {
+        data = date.handle(data);
+      }
+    });
+
+    return data;
   }
 }

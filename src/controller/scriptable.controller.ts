@@ -80,6 +80,7 @@ export class ScriptableController {
       false,
     );
     info.dwellTimeMinutes = this.service.getDwellTimeMinutes(info, list);
+    info = await this.service.setExpandField(info);
 
     res.json({
       code: 0,
@@ -173,6 +174,8 @@ export class ScriptableController {
     targetData.isMeetPast = await this.cacheManager.get(
       MEET_CACHE + body.driveName,
     );
+
+    targetData = await this.service.setExpandField(targetData);
 
     console.log('获取到的数据1', targetData);
 

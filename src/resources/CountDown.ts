@@ -153,8 +153,12 @@ async function createWidget(data: IRecordData) {
 
     const batteryLevel = Math.floor(data.batteryLevel * 1000) / 1000;
 
-    // 用来做天气使用的背景图
-    // widget.backgroundImage = await getBase64Image('backage1');
+    if (data.backgroundImageSkin) {
+      widget.backgroundImage = await getBase64Image(data.backgroundImageSkin);
+    } else {
+      // 用来做天气使用的背景图
+      widget.backgroundImage = await getDefaultBackgroundImage();
+    }
 
     log({ width, height });
     widget.setPadding(10, 10, 10, 10);
@@ -171,7 +175,7 @@ async function createWidget(data: IRecordData) {
     bubbleStack.layoutVertically();
     bubbleStack.centerAlignContent();
     bubbleStack.size = new Size(110, 35);
-    bubbleStack.backgroundColor = new Color('#000000', 0.3);
+    // bubbleStack.backgroundColor = new Color('#000000', 0.3);
     bubbleStack.cornerRadius = 10;
     bubbleStack.addSpacer(8);
 
@@ -293,15 +297,27 @@ async function messageRender(
   const addressIconWrapStack = emojiStack.addStack();
   addressIconWrapStack.size = new Size(addressIconWidth, 65);
   // addressIconWrapStack.backgroundColor = new Color('#000000', 0.2);
-  const icon = data.isMeet === true ? 'merge' : data.driveName;
+
+  let icon;
+  if (data.addressIcon) {
+    icon = data.addressIcon;
+  } else {
+    icon = data.isMeet === true ? 'merge' : data.driveName;
+  }
+
   addressIconWrapStack.backgroundImage = await getBase64Image(icon);
   addressIconWrapStack.centerAlignContent();
 
   const addressIconStack = addressIconWrapStack.addStack();
   addressIconStack.size = new Size(addressIconWidth, 65);
   // addressIconStack.backgroundColor = new Color('#f31515', 0.2);
+
   // 坐标的皮肤控制
-  if (data.isMeet || data.isMeetPast === true) {
+  if (data.addressIconSkin) {
+    addressIconStack.backgroundImage = await getBase64Image(
+      data.addressIconSkin,
+    );
+  } else if (data.isMeet || data.isMeetPast === true) {
     addressIconStack.backgroundImage = await getBase64Image('skin1');
   }
 
@@ -507,29 +523,28 @@ async function checkVersion(version: string) {
   }
 }
 
-async function getBase64(reload = false) {
-  let rs;
-  if (!reload) {
-    log('开始读取临时图片文件');
-    rs = await getBase64File('imageListV1.json');
-  }
-
-  if (reload || !rs) {
-    log('开始请求图片数据' + widgetConfig.url + '/scriptable/getBase64');
-    const res = await $.post({
-      url: widgetConfig.url + '/scriptable/getBase64',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    log('后端响应');
-    const response = JSON.parse(res);
-    rs = response.data;
-    log('保存到icloud');
-    await setBase64File('imageListV1.json', rs);
-  }
+async function getBase64() {
+  log('开始读取临时图片文件');
+  const rs = await getBase64File('imageListV1.json');
 
   log('已获取图片文件信息' + typeof rs);
+  return rs;
+}
+
+async function reloadBase64() {
+  log('开始请求图片数据' + widgetConfig.url + '/scriptable/getBase64');
+  const res = await $.post({
+    url: widgetConfig.url + '/scriptable/getBase64',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  log('后端响应');
+  const response = JSON.parse(res);
+  const rs = response.data;
+  log('保存到icloud');
+  await setBase64File('imageListV1.json', rs);
+
   return rs;
 }
 
@@ -544,7 +559,7 @@ async function checkImage(base64Length: string) {
     const currentVersion: string = $.getdata(map_widget_check_base64);
     if (`${base64Length}` !== `${currentVersion}`) {
       log('base64长度不一致，开始更新表情包信息');
-      await getBase64(true);
+      await reloadBase64();
       $.setdata('map_widget_check_base64', base64Length);
     } else {
       log('base64长度一致，已是最新');
@@ -742,6 +757,12 @@ function phoneSizes() {
       bottom: 1146,
     },
   };
+}
+
+async function getDefaultBackgroundImage() {
+  return await base64ToImage(
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAC/BAMAAAAiHJeoAAAAGFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWNxwqAAAACHRSTlMATUI5NioVDkwNmNAAAAC2SURBVHja7dqhrQJAEEXRET/5liEUAAoLJPQBHYDAI+g/CDSLGEImm3M6uGLNvgkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgJ+6HbJgebxED48sWt2jg/9NVm2jg78sW0UH16xr8UrOWXeKBvZZt4sGNlm3jgbyCxbRgBAhL0KECBkTIkTImBAhQsaECBEyJkSIkDEhQoR84BN79llhmqFnmultmjF0mnl6moOBeU44AADgvSezT87p5XwRlwAAAABJRU5ErkJggg==',
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

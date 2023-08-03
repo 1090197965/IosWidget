@@ -32,6 +32,9 @@ export interface IRecordData {
   dwellTimeMinutes?: number;
   isMeet?: boolean;
   isMeetPast?: boolean;
+  backgroundImageSkin?: string;
+  addressIconSkin?: string;
+  addressIcon?: string;
 }
 
 interface CurrentLocation {

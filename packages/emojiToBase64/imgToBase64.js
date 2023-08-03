@@ -2,7 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-const inputDir = './imgToBase64'; // 输入文件夹
+console.log('process.argv', process.argv.slice(2));
+const savePath = process.argv.slice(2)[0]
+
+const inputDir = './' + savePath; // 输入文件夹
 
 // 遍历输入文件夹，获取所有图片文件
 const files = fs.readdirSync(inputDir).filter(file => {
@@ -26,4 +29,4 @@ const rs = {};
 base64Data.forEach(item => {
   rs[item.name] = item.path;
 })
-fs.writeFileSync('./imgToBase64/base64.json', JSON.stringify(rs));
+fs.writeFileSync('./' + savePath + '/base64.json', JSON.stringify(rs));

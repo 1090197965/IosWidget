@@ -5,7 +5,8 @@
   "main": "./lib/index.js",
   "scripts": {
     "start": "node ./index.js",
-    "imgToBase64": "node ./imgToBase64.js"
+    "imgToBase64": "node ./imgToBase64.js imgToBase64",
+    "imgToBase64:weather": "node ./imgToBase64.js weather"
   },
   "author": "",
   "license": "ISC",
