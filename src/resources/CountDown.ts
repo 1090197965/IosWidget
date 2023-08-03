@@ -542,7 +542,7 @@ async function reloadBase64() {
   log('后端响应');
   const response = JSON.parse(res);
   const rs = response.data;
-  log('保存到icloud');
+  log('保存到临时文件');
   await setBase64File('imageListV1.json', rs);
 
   return rs;
