@@ -525,7 +525,13 @@ async function checkVersion(version: string) {
 
 async function getBase64() {
   log('开始读取临时图片文件');
-  const rs = await getBase64File('imageListV1.json');
+  let rs = await getBase64File('imageListV1.json');
+
+  // 如果不存在临时文件则拉取最新数据
+  if (!rs) {
+    log('文件不存在，重新拉取最新图片数据');
+    rs = await reloadBase64();
+  }
 
   log('已获取图片文件信息' + typeof rs);
   return rs;
