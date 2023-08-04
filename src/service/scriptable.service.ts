@@ -172,9 +172,11 @@ export class ScriptableService {
 
   async setExpandField(data: IRecordData) {
     const now = getBeiJinNowDate();
-    const fullDate = now.toLocaleDateString();
+    const fullDate = `${now.getFullYear()}/${
+      now.getMonth() + 1
+    }/${now.getDate()}`;
     const monthDate = `${now.getMonth() + 1}/${now.getDate()}`;
-    console.log('进行事件检查', now.toLocaleString(), fullDate, monthDate);
+    console.log('进行事件检查', fullDate, monthDate);
     eventDate.forEach((date) => {
       let compareDate;
       switch (date.type) {
