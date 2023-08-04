@@ -50,7 +50,7 @@ document.addEventListener('gesturestart', function (event) {
 });
 
 // 移动端console工具
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && urlParams.get('dev')) {
   const vConsole = new VConsole();
 }
 

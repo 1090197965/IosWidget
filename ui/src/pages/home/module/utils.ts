@@ -34,3 +34,26 @@ export function getEmojiNameCount() {
 
   return cache;
 }
+
+export function getEventDate() {
+  const today = new Date();
+  console.log('today.toLocaleDateString()', today.toLocaleDateString());
+  switch (today.toLocaleDateString()) {
+    case '2023/8/7':
+      // @ts-ignore
+      if (!window.EVENT_DATE_TEMPORARY_CLOSE && !getCache('EVENT_DATE_TEMPORARY_CLOSE')) {
+        return '/birthday';
+      }
+      break;
+  }
+
+  return '';
+}
+
+export function getCache<T>(key: string): T {
+  return window.localStorage.getItem(key) as T;
+}
+
+export function setCache(key: string, value: any) {
+  window.localStorage.setItem(key, value);
+}

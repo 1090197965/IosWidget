@@ -41,6 +41,7 @@ export const routes = {
     '/asyncPicker': wrap({ asyncComponent: () => import('./pages/asyncPicker/AsyncPickerDemo.svelte') }),
     '/timePicker': wrap({ asyncComponent: () => import('./pages/timePicker/TimePickerDemo.svelte') }),
     '/calendar': wrap({ asyncComponent: () => import('./pages/calendar/CalendarDemo.svelte') }),
+    '/birthday': wrap({ asyncComponent: () => import('./pages/home/eventDate/birthday.svelte') }),
     '/demo': Demo,
     '*': Home,
 };

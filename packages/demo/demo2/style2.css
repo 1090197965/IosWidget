@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Shadows+Into+Light&display=swap');
+
+:root {
+	--background: #F3F0D7;
+	--background-decor: #DBD0C0;
+	--banner-bg: #1C0C5B;
+	--banner-txt: white;
+	--message-bg: #F1EDE9;
+	--message-line: #94ACD4;
+	--message-txt: #333;
+	--font-banner: 'Abril Fatface', cursive;
+	--font-text: 'Shadows Into Light', cursive;
+	--space: 16px;
+	--space-xsm: 4px;
+	--space-sm: 8px;
+	--space-lg: 24px;
+	--space-xlg: 48px
+}
+
+body {
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	overflow-x: hidden;
+	background-color: var(--background);
+	background-image: radial-gradient(var(--background-decor) 20%, transparent 0), radial-gradient(var(--background-decor) 20%, transparent 0);
+	background-size: 80px 80px;
+	background-position: 0 0, 40px 40px
+}
+
+.bday-card {
+	max-width: 100%;
+	height: 100%;
+	width: 100%;
+	padding-top: 20%;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	position: relative
+}
+
+.bday-pic {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 70%;
+	margin: 0 auto;
+	padding: var(--space-sm) var(--space-sm) var(--space-xlg);
+	background: white;
+	border-radius: 4px;
+	box-shadow: var(--space-xsm) var(--space-xsm) 15px rgba(0, 0, 0, .15);
+	transform: rotate(5deg) translate(20px, 45px)
+}
+
+.bday-pic img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover
+}
+
+.bday-decor--container {
+	position: relative
+}
+
+.bday-banner {
+	display: flex;
+	flex-direction: column;
+	align-items: baseline;
+	font-size: 122px;
+	z-index: 1;
+	color: var(--banner-txt);
+	font-family: var(--font-banner);
+	text-transform: uppercase;
+	transform: rotate(-5deg);
+	gap: var(--space-sm) 0
+}
+
+.bday-banner span {
+	background: var(--banner-bg);
+	padding: var(--space) 20%;
+	flex-grow: 0
+}
+
+.bday-banner span:nth-child(2) {
+	margin-left: 20%
+}
+
+.bday-message {
+	max-width: 80%;
+	padding: 35px var(--space);
+	font-family: var(--font-text);
+	font-size: 18px;
+	line-height: 32px;
+	color: var(--message-txt);
+	background-color: var(--message-bg)
+}
+
+.bday-message--paper {
+	background: repeating-linear-gradient(var(--message-bg), var(--message-bg) 31px, var(--message-line) 31px, var(--message-line) 32px);
+	box-shadow: var(--space-xsm) var(--space-xsm) 15px rgba(0, 0, 0, .15)
+}
+
+.bday-message--block-right {
+	position: relative
+}
+
+.bday-message--block-right::before {
+	content: "";
+	width: 100vw;
+	height: 100%;
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: var(--paper);
+	z-index: -1
+}
+
+.bday-message--block-left {
+	position: relative
+}
+
+.bday-message--block-left::before {
+	content: "";
+	width: 100vw;
+	height: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	background: var(--paper);
+	z-index: -1
+}
+
+.bday-decor {
+	font-size: 96px
+}
+
+.bday-decor--top-right {
+	position: absolute;
+	bottom: -70px;
+	right: -20px
+}
+
+.bday-decor--top-left {
+	position: absolute;
+	bottom: 0;
+	left: -25px
+}
+
+.bday-decor--bottom-right {
+	position: absolute;
+	right: 20px
+}
+
+.zoom-left-in-out {
+	animation-name: zoom-left-in-out;
+	animation-duration: 1.75s;
+	animation-iteration-count: infinite;
+	transform-origin: left bottom
+}
+
+@keyframes zoom-left-in-out {
+	0%, 100% {
+		transform: scale(0.95) rotate(2deg)
+	}
+	50% {
+		transform: scale(1) rotate(-2deg)
+	}
+}
+
+.pulse {
+	animation-name: pulse;
+	animation-duration: 1.3s;
+	animation-iteration-count: infinite
+}
+
+@keyframes pulse {
+	0%, 100% {
+		transform: scale(0.9)
+	}
+	50% {
+		transform: scale(1)
+	}
+}
+
+.float {
+	animation-name: float;
+	animation-duration: 1.9s;
+	animation-iteration-count: infinite
+}
+
+@keyframes float {
+	0%, 100% {
+		transform: translateY(0px)
+	}
+	50% {
+		transform: translateY(10px)
+	}
+}
+
+.spin {
+	animation-name: spin;
+	animation-duration: 3s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0)
+	}
+	to {
+		transform: rotate(360deg)
+	}
+}
+
+.flake {
+	position:fixed;
+	width:150px;
+	height:150px;
+	background-size:cover;
+}
+
+.flake1 {
+	background-image: url("./1.svg")
+}
+
+.flake2 {
+	background-image: url("./1.svg")
+}
+
+.flake3 {
+	background-image: url("./1.svg")
+}
+
+.flake4 {
+	background-image: url("./1.svg")
+}

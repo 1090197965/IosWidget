@@ -1,0 +1,39 @@
+html, body {
+	width:100%;
+	height:100%;
+	overflow:hidden;
+}
+
+body {
+	/*background:#f63;*/
+}
+
+.flake {
+	position:absolute;
+	width:100px;
+	height:100px;
+	background-size:cover;
+}
+
+.flake1 {
+	background-image: url("./1.svg")
+}
+
+.flake2 {
+	background-image: url("./1.svg")
+}
+
+.flake3 {
+	background-image: url("./1.svg")
+}
+
+.flake4 {
+	background-image: url("./1.svg")
+}
+
+
+body {
+	/*background: #ED213A;  !* fallback for old browsers *!*/
+	/*background: -webkit-linear-gradient(to right, #93291E, #ED213A);  !* Chrome 10-25, Safari 5.1-6 *!*/
+	/*background: linear-gradient(to right, #93291E, #ED213A); !* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ *!*/
+}

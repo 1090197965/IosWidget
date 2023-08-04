@@ -1,14 +1,15 @@
 <script lang="ts">
     import { Divider, Input, Button, Icon } from 'stdf';
+    import { push } from 'svelte-spa-router';
     import IosWidget from "./module/IosWidget.svelte";
     import EmojiList from './module/imageList'
     import { IExcess } from "../../interface/scriptableHome.interface";
     import gsap from "gsap";
     import { Draggable } from "gsap/Draggable";
     gsap.registerPlugin(Draggable);
-    import { tick } from "svelte";
+    import { onMount, tick } from "svelte";
     import { IWidgetRecordData } from "../../interface/scriptable.interface";
-    import { getEmojiNameCount } from "./module/utils";
+    import { getEmojiNameCount, getEventDate } from "./module/utils";
 
     let message: string;
     let time;
@@ -30,8 +31,13 @@
       return bValue - aValue;
     });
 
-    // onMount(() => {
-    // });
+    onMount(() => {
+      // 检查是否进入节假日
+      const event = getEventDate();
+      if (event) {
+        push('event');
+      }
+    });
 
     const clickLabel4Fun = () => {
       console.log('1', 1)
@@ -130,6 +136,12 @@
       excessTl.forEach(item => {
         item.repeat(0)
       });
+    }
+
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 13) {
+        handleSend();
+      }
     }
 
     const initDrag = () => {
@@ -246,6 +258,7 @@
     }
 </script>
 
+<svelte:window on:keydown={handleKeyDown}/>
 <div class="relative">
   <div class="pb-1 pt-1">
     <div class="mx-2 rounded-xl p-2 shadow">
@@ -285,8 +298,9 @@
 
   <div>
     <Input
-      placeholder="文字是非必须的哈，可以只发表情"
+      placeholder="可以直接回车发送消息拉！！！"
       bind:value={message}
+      type="text"
       on:clicklabel4={clickLabel4Fun}
       maxlength={30}
       clear
