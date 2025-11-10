@@ -35,7 +35,7 @@
       // 检查是否进入节假日
       const event = getEventDate();
       if (event) {
-        push('event');
+        push(event);
       }
     });
 
