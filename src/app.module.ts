@@ -6,10 +6,11 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { FileCache } from './util/fileCache.class';
 import { ScriptableController } from './controller/scriptable.controller';
 import { ScriptableService } from './service/scriptable.service';
+import { FavoriteController } from './controller/favorite.controller';
 
 @Module({
   imports: [CacheModule.register()],
-  controllers: [AppController, ScriptController, ScriptableController],
+  controllers: [AppController, ScriptController, ScriptableController, FavoriteController],
   providers: [AppService, FileCache, ScriptableService],
 })
 export class AppModule {}
