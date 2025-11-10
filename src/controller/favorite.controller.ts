@@ -90,6 +90,19 @@ export class FavoriteController {
 
   @Post('save')
   async save(@Body() body: SaveFavoriteDto, @Res() res: Response) {
+    // 校验 type 参数
+    if (!body.type || body.type.trim() === '') {
+      res.status(400).json({
+        code: 1,
+        data: {
+          type: body.type || '',
+          message: 'type参数不能为空',
+        },
+        message: 'type参数不能为空',
+      });
+      return;
+    }
+    
     const cacheKey = FAVORITE_CACHE_PREFIX + body.type;
     const versionsKey = FAVORITE_CACHE_PREFIX + body.type + '_versions';
     const archivesKey = FAVORITE_CACHE_PREFIX + body.type + '_archives';
